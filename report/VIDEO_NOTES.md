@@ -1,14 +1,69 @@
 # Narrated Demo Videos — Notes
 
-This report contains four narrated demo videos, all built with free `edge-tts`
+This report contains five narrated demo videos, all built with free `edge-tts`
 voice narration and `ffmpeg` (static binary from `imageio-ffmpeg`).
 
 ---
 
-## 1. Deployed web UI demo — `report/glance-pay-web-demo.mp4` (NEW)
+## 1. E2E walkthrough — `report/glance-pay-e2e-walkthrough.mp4` (NEW)
+
+A **narrated end-to-end walkthrough covering both roles** (admin and normal
+user), built from the 10 real e2e UI screenshots. It shows the whole system
+apart from the MetaMask wallet signature, which requires a human.
+
+- **Final video:** `report/glance-pay-e2e-walkthrough.mp4`
+- **Format:** MP4, 1280x720, H.264 video (30 fps, yuv420p) + AAC audio (48 kHz, stereo)
+- **Exact duration:** `00:02:45.75` (165.75 s)
+- **File size:** 4,763,884 bytes (~4.54 MiB)
+
+### Voice narration
+
+- **Engine:** `edge-tts` — free Microsoft Edge neural TTS, no API key or credentials required.
+- **Voice model:** `en-US-GuyNeural`
+- **Rate:** `-8%`
+- Per-slide text, voice and rate come from `report/tools/e2e_narration.json`.
+- The 10 generated MP3 files live in `report/e2e_narration/` and are named per
+  the `audio` field in that JSON.
+
+### Inputs
+
+- **Screenshots:** `screenshots/e2e/` — 10 PNG files (1280x720):
+  `01-home.png`, `02-admin-form.png`, `03-admin-added.png`,
+  `04-user-merchants.png`, `05-amount.png`, `06-nowallet.png`,
+  `07-faucets.png`, `08-api-reject.png`, `09-payments.png`, `10-end.png`
+  (listed in `report/tools/e2e_narration.json`).
+- **Narration script:** `report/tools/e2e_narration.json`
+
+### Regenerate
+
+From the repository root (`/home/azureuser/Glance-Pay`):
+
+```bash
+python3 report/tools/build_e2e_video.py
+```
+
+The builder is idempotent: it reuses existing non-empty MP3s and video segments,
+synthesizes only missing MP3s via edge-tts into `report/e2e_narration/`, creates
+one still-image + audio segment per screenshot in `report/e2e_segments/` via
+`-loop 1 -framerate 30` + `libx264`/`aac`, then concatenates them (stream-copy, with a
+re-encode fallback) into the final MP4 with `-movflags +faststart`. It prints a final
+`ffmpeg -i` verification of the output.
+
+### Verification (from the build run)
+
+```
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'report/glance-pay-e2e-walkthrough.mp4':
+  Duration: 00:02:45.75, start: 0.000000, bitrate: 229 kb/s
+  Stream #0:0: Video: h264 (High), yuv420p(progressive), 1280x720, 30 fps
+  Stream #0:1: Audio: aac (LC), 48000 Hz, stereo
+```
+
+---
+
+## 2. Deployed web UI demo — `report/glance-pay-web-demo.mp4`
 
 A **narrated video of the NEW deployed web UI**, chaining the 11 web UI
-screenshots with free AI voice narration. This is the primary video listed first
+screenshots with free AI voice narration. It is listed after the e2e walkthrough
 in the completion report deliverables.
 
 - **Final video:** `report/glance-pay-web-demo.mp4`
@@ -60,7 +115,7 @@ Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'report/glance-pay-web-demo.mp4':
 
 ---
 
-## 2. Slide-deck demo — `report/glance-pay-demo.mp4`
+## 3. Slide-deck demo — `report/glance-pay-demo.mp4`
 
 The original narrated walkthrough built from the 14 report slides.
 
@@ -107,7 +162,7 @@ Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'report/glance-pay-demo.mp4':
 
 ---
 
-## 3. Actual product demo — `report/glance-pay-product-demo.mp4`
+## 4. Actual product demo — `report/glance-pay-product-demo.mp4`
 
 A narrated video of the **actual Glance Pay product UI**, chaining the 10 real
 product screenshots with AI voice narration.
@@ -160,7 +215,7 @@ Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'report/glance-pay-product-demo.mp4':
 
 ---
 
-## 4. Feedback video — `report/glance-pay-feedback-demo.mp4`
+## 5. Feedback video — `report/glance-pay-feedback-demo.mp4`
 
 A **self-contained narrated feedback video** chaining the 14 real feedback
 UI/context screenshots with free AI voice narration.

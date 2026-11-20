@@ -1,0 +1,56 @@
+{
+  "voice": "en-US-GuyNeural",
+  "rate": "-8%",
+  "slides": [
+    {
+      "image": "01-home.png",
+      "audio": "01-home.mp3",
+      "text": "This is Glance Pay, and this is the only interface: one web app for both roles. It is a real Base Sepolia testnet flow. Connect a wallet, fund it with test U S D C, sign a transfer, and the backend verifies the transaction onchain before emailing a receipt. In this video we show everything except the wallet signature, which needs a human with MetaMask."
+    },
+    {
+      "image": "02-admin-form.png",
+      "audio": "02-admin-form.mp3",
+      "text": "First, the admin role. The operator onboards a merchant by entering its name, address, coordinates and U P I handle. The backend validates the U P I string, stores the merchant, and makes it available to every user immediately."
+    },
+    {
+      "image": "03-admin-added.png",
+      "audio": "03-admin-added.mp3",
+      "text": "The merchant is added. The admin list shows all registered merchants, and the same registry feeds the user's payment screen. This is the control point that decides who a customer can pay."
+    },
+    {
+      "image": "04-user-merchants.png",
+      "audio": "04-user-merchants.mp3",
+      "text": "Now the normal user view. The merchant is already in the dropdown. The user only needs to connect a wallet, choose a merchant and enter an amount."
+    },
+    {
+      "image": "05-amount.png",
+      "audio": "05-amount.mp3",
+      "text": "Entering twelve rupees fifty shows the equivalent test U S D C amount and previews exactly what the glasses would display: merchant, amount and a confirmation line."
+    },
+    {
+      "image": "06-nowallet.png",
+      "audio": "06-nowallet.mp3",
+      "text": "Without a browser wallet the app fails clearly instead of pretending. In the live demo, the user connects MetaMask here, switches to Base Sepolia, and signs the transfer. That signature is the one step we cannot automate."
+    },
+    {
+      "image": "07-faucets.png",
+      "audio": "07-faucets.mp3",
+      "text": "Funding is testnet only. The page links to Circle's faucet for twenty test U S D C and to Base's faucet for test gas. No real money is involved at any point."
+    },
+    {
+      "image": "08-api-reject.png",
+      "audio": "08-api-reject.mp3",
+      "text": "Safety check: the backend never sends a receipt for an unverified transaction. A fake transaction hash is rejected with a clear error, and no payment record is created."
+    },
+    {
+      "image": "09-payments.png",
+      "audio": "09-payments.mp3",
+      "text": "When a real signed transaction is verified onchain, the payment appears here with the explorer link and the receipt email id. This is the admin's audit view of everything that actually happened."
+    },
+    {
+      "image": "10-end.png",
+      "audio": "10-end.mp3",
+      "text": "That is the whole system apart from the wallet signature. We would love your feedback. Is the journey obvious on first use? Is the admin onboarding clear? And what would you change before trying this with real money? Code and contact details are on screen. Thank you."
+    }
+  ]
+}

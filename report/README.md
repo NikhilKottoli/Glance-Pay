@@ -1,6 +1,7 @@
 # Glance Pay — completion report deliverables
 
-- **Deployed web UI demo (self-contained, narrated; NEW):** `glance-pay-web-demo.mp4` — 11 screenshots of the NEW deployed web UI from `../screenshots/web/` chained with free AI voice narration; 1280x720, H.264 + AAC, ~3 min 2 s. Script: `tools/web_narration.json` · Builder: `tools/build_web_video.py` · Audio: `web_narration/` (11 MP3s).
+- **e2e walkthrough (both roles, no wallet signature; NEW):** `glance-pay-e2e-walkthrough.mp4` — 10 real UI screenshots (admin + normal user flows) from `../screenshots/e2e/` chained with free AI voice narration; covers the full flow except the MetaMask wallet signature; 1280x720, H.264 + AAC, ~2 min 46 s. Script: `tools/e2e_narration.json` · Builder: `tools/build_e2e_video.py` · Audio: `e2e_narration/` (10 MP3s).
+- **Deployed web UI demo (self-contained, narrated):** `glance-pay-web-demo.mp4` — 11 screenshots of the NEW deployed web UI from `../screenshots/web/` chained with free AI voice narration; 1280x720, H.264 + AAC, ~3 min 2 s. Script: `tools/web_narration.json` · Builder: `tools/build_web_video.py` · Audio: `web_narration/` (11 MP3s).
 - **Feedback video (self-contained, narrated):** `glance-pay-feedback-demo.mp4` — 14 real UI/context screenshots from `../screenshots/feedback/` chained with free AI voice narration; 1280x720, H.264 + AAC, ~4 min 46 s. Script: `tools/feedback_narration.json` · Builder: `tools/build_feedback_video.py` · Audio: `feedback_narration/` (14 MP3s).
 - **Completion report (14-slide HTML deck):** `glance-pay-completion-report.html`
 - **Screenshots (14 PNGs, 1280x720):** `../screenshots/` — captured from the report with the browser MCP (Playwright).
@@ -12,7 +13,13 @@
 
 The voice is `edge-tts` `en-US-GuyNeural` — a free neural TTS service requiring no API key.
 
-To regenerate the NEW deployed web UI demo (except the screenshots):
+To regenerate the e2e walkthrough (except the screenshots):
+
+```bash
+python3 report/tools/build_e2e_video.py
+```
+
+To regenerate the deployed web UI demo (except the screenshots):
 
 ```bash
 python3 report/tools/build_web_video.py
