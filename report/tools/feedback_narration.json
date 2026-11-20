@@ -1,0 +1,76 @@
+{
+  "voice": "en-US-GuyNeural",
+  "rate": "-8%",
+  "slides": [
+    {
+      "image": "01-problem.png",
+      "audio": "01-problem.mp3",
+      "text": "Hi, and thanks for watching. This is Glance Pay, an early prototype for hands-free payments on Even Realities G two smart glasses. The glasses show text in the lens and have a microphone and a ring for input, but no camera and no speaker. The payment rail needs a scanned U P I QR, so we turn your location and your voice into that payment payload."
+    },
+    {
+      "image": "02-flow.png",
+      "audio": "02-flow.mp3",
+      "text": "The idea is simple. You start with a ring gesture and say, pay twelve fifty. The paired phone finds a nearby merchant and builds the merchant's U P I Q R string. It then uses RupeeRail to get a quote, sign the payment and pay the merchant in rupees. The lens shows a short status: paid, pending, or failed."
+    },
+    {
+      "image": "03-roles.png",
+      "audio": "03-roles.mp3",
+      "text": "There are two roles in this demo. A user connects a low-balance session wallet and sees their past payments. An admin onboards merchants and drives the payment simulation. Everything you see is mock mode: no real wallet, no real U P I transfer, and no glasses hardware are involved."
+    },
+    {
+      "image": "04-user-wallet.png",
+      "audio": "04-user-wallet.mp3",
+      "text": "Here is the actual app. On the left is the G two lens view, limited to three short lines of text. On the right is the paired phone. In the user role, the only actions are connecting a session wallet and viewing past payments. The history is stored locally on the device, with no analytics and no location upload."
+    },
+    {
+      "image": "05-admin-onboard.png",
+      "audio": "05-admin-onboard.mp3",
+      "text": "The admin role adds a merchant to the registry: name, address, G P S coordinates, U P I handle, category and aliases. The form validates the U P I string and coordinates. This is the merchant that the user will then be offered near their location."
+    },
+    {
+      "image": "06-listening.png",
+      "audio": "06-listening.mp3",
+      "text": "Now the payment flow. The admin starts it with an explicit gesture; there is no always-on wake word. The lens says listening, and the phone shows the live state machine. In a real build, this is where the microphone transcript would arrive."
+    },
+    {
+      "image": "07-pick.png",
+      "audio": "07-pick.mp3",
+      "text": "The phrase pay twelve fifty is parsed into twelve rupees and fifty paise. Two seeded merchants are about fifteen metres apart, so the app does not guess. It shows a short pick list; the cursor moves with the ring and a tap selects. A strong single match would still go to confirmation."
+    },
+    {
+      "image": "08-confirm.png",
+      "audio": "08-confirm.mp3",
+      "text": "On the confirm screen, the lens shows the merchant, the amount in rupees and USDC, and a countdown. The quote is created fresh at this moment. If it expires while the user hesitates, the app re-quotes and asks again instead of signing stale data."
+    },
+    {
+      "image": "09-pending.png",
+      "audio": "09-pending.mp3",
+      "text": "One tap signs the intent and submits to the rail. The lens says paying, while the phone audit log records each step with a timestamp and transaction hash. A second tap is ignored: confirmation is single-use, so a double tap cannot create two payments."
+    },
+    {
+      "image": "10-success.png",
+      "audio": "10-success.mp3",
+      "text": "The mock payout settles and the lens reads, paid twelve rupees fifty to Cafe X. This is a simulated testnet flow, so no money has actually moved. The message is deliberately short enough to read at a glance while walking."
+    },
+    {
+      "image": "11-history.png",
+      "audio": "11-history.mp3",
+      "text": "Switching back to the user role, the payment now appears in their history with the merchant, amount, state and transaction id. This is the user's view of the world: a connected wallet and a record of what happened."
+    },
+    {
+      "image": "12-cancel.png",
+      "audio": "12-cancel.mp3",
+      "text": "Safety path. With a wrong merchant hint, the app offers a candidate list, and the user makes a distinct cancel gesture. The lens confirms that nothing was charged. The design never auto-pays on a strong match."
+    },
+    {
+      "image": "13-refund.png",
+      "audio": "13-refund.mp3",
+      "text": "Failure path. If the payout rail fails, the mock refunds the amount and the lens says, failed, refunded. The user is never left unsure whether money moved. Similar clear messages cover offline, rejected quote and timeout states."
+    },
+    {
+      "image": "14-feedback.png",
+      "audio": "14-feedback.mp3",
+      "text": "That is the demo. We would really value your feedback. Is the pick-then-confirm flow clear on a tiny text lens? Would you understand the amount and refund messages at a glance? And what is missing before you would try this with real money? The code and contact details are on screen. Thank you."
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 # Glance Pay — completion report deliverables
 
+- **Feedback video (self-contained, narrated; NEW):** `glance-pay-feedback-demo.mp4` — 14 real UI/context screenshots from `../screenshots/feedback/` chained with free AI voice narration; 1280x720, H.264 + AAC, ~4 min 46 s. Script: `tools/feedback_narration.json` · Builder: `tools/build_feedback_video.py` · Audio: `feedback_narration/` (14 MP3s).
 - **Completion report (14-slide HTML deck):** `glance-pay-completion-report.html`
 - **Screenshots (14 PNGs, 1280x720):** `../screenshots/` — captured from the report with the browser MCP (Playwright).
 - **Product demo video (real UI):** `glance-pay-product-demo.mp4` — 10 screenshots of the interactive app driven through happy/cancel/failure paths, 1280x720, H.264 + AAC, ~2 min 34 s. App: `../apps/glance-pay/demo/`.

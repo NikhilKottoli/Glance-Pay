@@ -1,6 +1,6 @@
 # Narrated Demo Videos — Notes
 
-This report contains two narrated demo videos, both built with free `edge-tts`
+This report contains three narrated demo videos, all built with free `edge-tts`
 voice narration and `ffmpeg` (static binary from `imageio-ffmpeg`).
 
 ---
@@ -101,4 +101,59 @@ Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'report/glance-pay-product-demo.mp4':
   Duration: 00:02:34.03, start: 0.000000, bitrate: 227 kb/s
   Stream #0:0: Video: h264 (High), yuv420p(progressive), 1280x720, 29.99 fps, 30 tbr
   Stream #0:1: Audio: aac (LC), 48000 Hz, stereo, fltp, 133 kb/s
+```
+
+---
+
+## 3. Feedback video — `report/glance-pay-feedback-demo.mp4`
+
+A **self-contained narrated feedback video** chaining the 14 real feedback
+UI/context screenshots with free AI voice narration. This is the primary video
+listed first in the completion report deliverables.
+
+- **Final video:** `report/glance-pay-feedback-demo.mp4`
+- **Format:** MP4, 1280x720, H.264 video (30 fps, yuv420p) + AAC audio (48 kHz, stereo)
+- **Exact duration:** `00:04:46.22` (286.22 s)
+- **File size:** 7,496,582 bytes (~7.15 MiB)
+
+### Voice narration
+
+- **Engine:** `edge-tts` — free Microsoft Edge neural TTS, no API key or credentials required.
+- **Voice model:** `en-US-GuyNeural`
+- **Rate:** `-8%`
+- Per-slide text, voice and rate come from `report/tools/feedback_narration.json`.
+- The 14 generated MP3 files live in `report/feedback_narration/` and are named per
+  the `audio` field in that JSON.
+
+### Inputs
+
+- **Screenshots:** `screenshots/feedback/` — 14 PNG files (1280x720):
+  `01-problem.png`, `02-flow.png`, `03-roles.png`, `04-user-wallet.png`,
+  `05-admin-onboard.png`, `06-listening.png`, `07-pick.png`, `08-confirm.png`,
+  `09-pending.png`, `10-success.png`, `11-history.png`, `12-cancel.png`,
+  `13-refund.png`, `14-feedback.png` (listed in `report/tools/feedback_narration.json`).
+- **Narration script:** `report/tools/feedback_narration.json`
+
+### Regenerate
+
+From the repository root (`/home/azureuser/Glance-Pay`):
+
+```bash
+python3 report/tools/build_feedback_video.py
+```
+
+The builder is idempotent: it reuses existing non-empty MP3s and video segments,
+synthesizes only missing MP3s via edge-tts into `report/feedback_narration/`, creates
+one still-image + audio segment per screenshot in `report/feedback_segments/` via
+`-loop 1 -framerate 30` + `libx264`/`aac`, then concatenates them (stream-copy, with a
+re-encode fallback) into the final MP4 with `-movflags +faststart`. It prints a final
+`ffmpeg -i` verification of the output.
+
+### Verification (from the build run)
+
+```
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'report/glance-pay-feedback-demo.mp4':
+  Duration: 00:04:46.22, start: 0.000000, bitrate: 209 kb/s
+  Stream #0:0: Video: h264 (High), yuv420p(progressive), 1280x720, 30 fps
+  Stream #0:1: Audio: aac (LC), 48000 Hz, stereo, fltp, 132 kb/s
 ```

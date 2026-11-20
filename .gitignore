@@ -5,6 +5,8 @@ screenshots/
 report/narration/
 report/product_narration/
 report/product_segments/
+report/feedback_narration/
+report/feedback_segments/
 report/segments/
 
 # Tooling / local state
