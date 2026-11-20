@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Glance Pay — Testnet Demo</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header>
+  <div class="brand"><span class="logo">G</span><div><b>Glance Pay</b><small>hands-free payments on smart glasses</small></div></div>
+  <div class="badges"><span class="badge test">TESTNET DEMO</span><span class="badge" id="provider-badge">payout: …</span></div>
+</header>
+
+<main>
+  <section class="intro">
+    <h1>Pay with your voice.<br/><span>See it on your glasses.</span></h1>
+    <p>Glance Pay turns a spoken amount and your location into a merchant's UPI QR, then uses RupeeRail to pay. This deployed demo runs a <b>mock payout</b>: no real money moves — instead, a receipt email is sent.</p>
+    <div class="steps">
+      <div><b>1</b> Pick a merchant</div><div><b>2</b> Confirm the amount</div><div><b>3</b> Get a receipt</div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <aside class="card lens-card">
+      <div class="card-title">LENS PREVIEW <span id="lens-state">IDLE</span></div>
+      <div class="lens">
+        <div id="l1">Glance Pay</div>
+        <div id="l2">Ready</div>
+        <div id="l3">tap to begin</div>
+      </div>
+      <p class="fine">The real G2 shows three short text lines in the lens — no camera, no speaker.</p>
+    </aside>
+
+    <section class="card main-card">
+      <div class="tabs">
+        <button id="tab-user" class="tab active">Make a payment</button>
+        <button id="tab-admin" class="tab">Admin · merchants &amp; receipts</button>
+      </div>
+
+      <div id="user-view">
+        <div class="field-row">
+          <div class="field"><label>Session wallet</label><button id="connect" class="btn">Connect wallet</button><p id="wallet" class="fine">Not connected</p></div>
+          <div class="field"><label>Merchant</label><select id="merchant"></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Amount (INR)</label><input id="amount" type="number" min="1" max="500" step="0.01" value="12.50" /></div>
+          <div class="field"><label>&nbsp;</label><button id="pay" class="btn primary">Pay with Glance</button></div>
+        </div>
+        <div id="status" class="status">Fill in the details and press <b>Pay with Glance</b>.</div>
+        <h3>Your past payments</h3>
+        <div id="payments" class="list">No payments yet.</div>
+      </div>
+
+      <div id="admin-view" hidden>
+        <h3>Onboard a merchant</h3>
+        <form id="onboard-form" class="form-grid">
+          <input id="m-name" placeholder="Merchant name" required />
+          <input id="m-address" placeholder="Address" required />
+          <input id="m-lat" placeholder="Latitude" value="12.9716" required />
+          <input id="m-lng" placeholder="Longitude" value="77.5946" required />
+          <input id="m-upi" class="wide" placeholder="upi://pay?pa=merchant@upi&cu=INR" required />
+          <input id="m-category" placeholder="Category" value="cafe" />
+          <button type="submit" class="btn primary">Add merchant</button>
+        </form>
+        <p id="onboard-status" class="fine"></p>
+        <h3>Registered merchants</h3>
+        <div id="admin-merchants" class="list"></div>
+        <h3>All payments (&amp; receipt emails)</h3>
+        <div id="admin-payments" class="list">Loading…</div>
+      </div>
+    </section>
+  </div>
+
+  <p class="disclaimer"><b>Honest scope:</b> This is a testnet prototype. The payout provider is a stub that emails a receipt via Resend; swapping <code>PAYOUT_PROVIDER=bank</code> for a real bank/UPI API requires changing only that provider. No keys are exposed in the browser.</p>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>

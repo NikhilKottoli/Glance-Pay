@@ -3,6 +3,16 @@
 Hands-free stablecoin → UPI payments on Even Realities G2 smart glasses, built on
 [RupeeRail](https://github.com/NikhilKottoli/RupeeRail). Testnet only.
 
+## Deployable demo (testnet-style)
+
+A live web app with a swappable payout stub is in `apps/glance-pay/web/` +
+`apps/glance-pay/server/`. On payment it emails a receipt via Resend; no money moves.
+Run with `node apps/glance-pay/server/server.mjs` (see the server README for env vars
+and how to swap in a real bank/UPI API).
+
+**Live link (Cloudflare quick tunnel, while the session is up):**
+https://extends-rapidly-para-police.trycloudflare.com
+
 ## What is here
 
 - `apps/glance-pay/demo/` — interactive mock-mode product demo (G2 lens simulator +

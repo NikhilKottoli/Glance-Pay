@@ -1,0 +1,37 @@
+:root{--bg:#080e18;--panel:#101d2e;--line:#273e5a;--ink:#eaf2ff;--muted:#93a8c4;--cyan:#4de3d0;--gold:#ffc857;--green:#7ce0a3;--red:#ff7a8a}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(900px 500px at 10% -10%,#123047,transparent 60%),var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:0 28px 50px}
+header{max-width:1180px;margin:auto;padding:20px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;gap:12px;align-items:center}.logo{background:#13534f;color:var(--cyan);width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:20px}
+.brand b{display:block;font-size:19px}.brand small{color:var(--muted);font-size:12px}
+.badges{display:flex;gap:8px}.badge{font-size:11px;letter-spacing:.1em;border:1px solid var(--line);border-radius:999px;padding:6px 12px;color:var(--muted)}
+.badge.test{color:var(--gold);border-color:#6b5829;background:#2a2413}
+main{max-width:1180px;margin:auto}
+.intro{padding:34px 0 10px}.intro h1{font-size:44px;line-height:1.1;margin:0}.intro h1 span{color:var(--cyan)}
+.intro p{color:#cddcf0;max-width:760px;line-height:1.6}.intro p b{color:var(--gold)}
+.steps{display:flex;gap:10px;margin:18px 0 24px;flex-wrap:wrap}.steps div{background:#101d2e;border:1px solid var(--line);border-radius:9px;padding:9px 15px;font-size:13px}
+.steps b{color:var(--cyan);margin-right:7px}
+.layout{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+.card{background:linear-gradient(160deg,#14253a,#101d2e);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card-title{font-size:11px;letter-spacing:.15em;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:12px}
+.card-title span{color:var(--cyan);font-weight:800}
+.lens{background:#04070c;border:2px solid #30506a;border-radius:14px;padding:24px 18px;font-family:Consolas,monospace;min-height:150px;box-shadow:inset 0 0 40px #0b2b3a}
+.lens div{font-size:20px;line-height:1.5}.lens div:first-child{color:var(--gold)}.lens div:last-child{color:var(--cyan)}
+.fine{font-size:12px;color:var(--muted);line-height:1.5}
+.tabs{display:flex;gap:8px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.tab{background:none;border:0;color:var(--muted);padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit}
+.tab.active{color:var(--cyan);border-color:var(--cyan)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+input,select{width:100%;background:#0a1625;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:10px 11px;font-family:inherit;font-size:14px}
+.btn{background:#1b3049;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 15px;cursor:pointer;font-family:inherit;font-size:14px;width:100%}
+.btn.primary{background:#13534f;border-color:#2c8c85;color:#eafffb}.btn:disabled{opacity:.6;cursor:default}
+.status{background:#0c1929;border:1px solid var(--line);border-radius:9px;padding:12px 14px;font-size:14px;color:#cddcf0;line-height:1.5;margin:6px 0 18px}
+.status.ok{border-color:#2c6e50;color:var(--green)}.status.err{border-color:#7a3340;color:var(--red)}
+h3{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin:18px 0 8px}
+.list{font-size:13px;color:#c7d7ec}.list div{border-bottom:1px solid #1d2f45;padding:7px 2px;line-height:1.4}
+.list a{color:var(--cyan)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.form-grid .wide{grid-column:span 2}
+.disclaimer{font-size:12px;color:var(--muted);line-height:1.6;border-top:1px solid var(--line);margin-top:26px;padding-top:14px}
+code{font-family:Consolas,monospace;background:#0a1625;border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:#bfe9ff}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.field-row,.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:span 1}}
