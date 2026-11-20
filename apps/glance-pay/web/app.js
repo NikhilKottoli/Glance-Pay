@@ -44,6 +44,14 @@ $("connect").addEventListener("click", () => {
   lens("Wallet ready", "Capped session wallet", "Choose a merchant", "IDLE");
 });
 
+function previewSelection() {
+  const m = merchants.find((x) => x.id === $("merchant").value);
+  const amount = Number($("amount").value);
+  if (m && amount > 0) lens(m.name, `₹${amount.toFixed(2)}`, "confirm on lens", "CONFIRM");
+}
+$("merchant").addEventListener("change", previewSelection);
+$("amount").addEventListener("input", previewSelection);
+
 $("pay").addEventListener("click", async () => {
   const merchant = merchants.find((m) => m.id === $("merchant").value);
   const amount = Number($("amount").value);

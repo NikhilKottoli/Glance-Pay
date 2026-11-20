@@ -1,6 +1,7 @@
 # Glance Pay — completion report deliverables
 
-- **Feedback video (self-contained, narrated; NEW):** `glance-pay-feedback-demo.mp4` — 14 real UI/context screenshots from `../screenshots/feedback/` chained with free AI voice narration; 1280x720, H.264 + AAC, ~4 min 46 s. Script: `tools/feedback_narration.json` · Builder: `tools/build_feedback_video.py` · Audio: `feedback_narration/` (14 MP3s).
+- **Deployed web UI demo (self-contained, narrated; NEW):** `glance-pay-web-demo.mp4` — 11 screenshots of the NEW deployed web UI from `../screenshots/web/` chained with free AI voice narration; 1280x720, H.264 + AAC, ~3 min 2 s. Script: `tools/web_narration.json` · Builder: `tools/build_web_video.py` · Audio: `web_narration/` (11 MP3s).
+- **Feedback video (self-contained, narrated):** `glance-pay-feedback-demo.mp4` — 14 real UI/context screenshots from `../screenshots/feedback/` chained with free AI voice narration; 1280x720, H.264 + AAC, ~4 min 46 s. Script: `tools/feedback_narration.json` · Builder: `tools/build_feedback_video.py` · Audio: `feedback_narration/` (14 MP3s).
 - **Completion report (14-slide HTML deck):** `glance-pay-completion-report.html`
 - **Screenshots (14 PNGs, 1280x720):** `../screenshots/` — captured from the report with the browser MCP (Playwright).
 - **Product demo video (real UI):** `glance-pay-product-demo.mp4` — 10 screenshots of the interactive app driven through happy/cancel/failure paths, 1280x720, H.264 + AAC, ~2 min 34 s. App: `../apps/glance-pay/demo/`.
@@ -11,9 +12,17 @@
 
 The voice is `edge-tts` `en-US-GuyNeural` — a free neural TTS service requiring no API key.
 
-To regenerate everything except the screenshots:
+To regenerate the NEW deployed web UI demo (except the screenshots):
 
 ```bash
+python3 report/tools/build_web_video.py
+```
+
+To regenerate the earlier videos:
+
+```bash
+python3 report/tools/build_feedback_video.py
+python3 report/tools/build_product_video.py
 python3 report/tools/build_video.py
 ```
 

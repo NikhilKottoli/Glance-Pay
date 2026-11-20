@@ -22,3 +22,6 @@ node_modules/
 __pycache__/
 *.pyc
 apps/glance-pay/server/data/
+report/web_narration/
+report/web_segments/
+report/tools/_locate_ffmpeg_tmp.py

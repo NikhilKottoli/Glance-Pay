@@ -1,0 +1,61 @@
+{
+  "voice": "en-US-GuyNeural",
+  "rate": "-8%",
+  "slides": [
+    {
+      "image": "01-problem.png",
+      "audio": "01-problem.mp3",
+      "text": "Hi, and thanks for watching. This is Glance Pay, a prototype for hands-free payments on Even Realities G two smart glasses. The glasses have no camera and no speaker, so we turn your voice and location into a merchant's U P I Q R, then use RupeeRail to pay. No real money moves in this demo."
+    },
+    {
+      "image": "02-flow.png",
+      "audio": "02-flow.mp3",
+      "text": "The flow: start with a gesture, say pay twelve fifty, confirm on the lens, and the merchant is paid in rupees. Instead of a real bank transfer, this build emails a receipt through Resend. A payout interface means a real bank or U P I API can be swapped in later."
+    },
+    {
+      "image": "03-roles.png",
+      "audio": "03-roles.mp3",
+      "text": "There are two roles. A user connects a low balance session wallet and sees past payments. An admin onboards merchants into the registry. Everything you are about to see is the actual deployed web app, not a mockup."
+    },
+    {
+      "image": "04-home.png",
+      "audio": "04-home.mp3",
+      "text": "Here is the live web app. On the left is a preview of what the glasses would show: three short lines of text. On the right, the user picks a merchant, enters an amount and confirms. The badge shows the payout provider currently in use."
+    },
+    {
+      "image": "05-wallet.png",
+      "audio": "05-wallet.mp3",
+      "text": "Connecting a wallet creates a capped demo session wallet. The address stays in this browser; no key is sent to the server and no secret is exposed in the page."
+    },
+    {
+      "image": "06-ready.png",
+      "audio": "06-ready.mp3",
+      "text": "Choose a merchant and enter an amount. The lens preview shows the merchant and the amount, exactly as the glasses would before the user confirms. The amount is capped at five hundred rupees for this demo."
+    },
+    {
+      "image": "07-paid.png",
+      "audio": "07-paid.mp3",
+      "text": "Pressing pay runs the stub payout: quote, sign, submit, then a receipt email. The screen shows the receipt email id and transaction hash, so the result is verifiable. Again, no real funds moved."
+    },
+    {
+      "image": "08-history.png",
+      "audio": "08-history.mp3",
+      "text": "Past payments appear here with merchant, amount, status and the receipt email id. The user always knows what happened, which is the key safety property in a payment flow with a tiny display."
+    },
+    {
+      "image": "09-admin.png",
+      "audio": "09-admin.mp3",
+      "text": "In the admin tab, a merchant can be onboarded with a name, address, coordinates and U P I handle. The registered merchants and every payment receipt are visible here for the operator."
+    },
+    {
+      "image": "10-onboard.png",
+      "audio": "10-onboard.mp3",
+      "text": "A new merchant is added instantly and becomes selectable in the payment flow. In production this is the step that lets an operator control which merchants a customer can pay."
+    },
+    {
+      "image": "11-feedback.png",
+      "audio": "11-feedback.mp3",
+      "text": "That is the demo. We would love your feedback. Is the flow clear on a tiny text lens? Would you trust the receipt? What is missing before you would try this with real money? The code and contact details are on screen. Thank you."
+    }
+  ]
+}
