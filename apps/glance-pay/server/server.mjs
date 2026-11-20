@@ -41,11 +41,11 @@ const readJson = (f, fallback) => { try { return JSON.parse(fs.readFileSync(f, "
 const writeJson = (f, v) => fs.writeFileSync(f, JSON.stringify(v, null, 2));
 if (!fs.existsSync(MERCHANTS_FILE)) {
   writeJson(MERCHANTS_FILE, [
-    { id: "cafe-x", name: "Café X", address: "12 Church St, Bengaluru", lat: 12.9716, lng: 77.5946,
+    { id: "cafe-x", name: "Café X", address: "Church St, Bengaluru", lat: 12.9716, lng: 77.5946,
       upiUri: "upi://pay?pa=cafex@upi&pn=Cafe%20X&cu=INR", category: "cafe", aliases: ["cafe x"] },
-    { id: "blue-tokai", name: "Blue Tokai", address: "14 Church St, Bengaluru", lat: 12.97172, lng: 77.59475,
+    { id: "blue-tokai", name: "Blue Tokai", address: "Church St, Bengaluru", lat: 12.97172, lng: 77.59475,
       upiUri: "upi://pay?pa=bluetokai@okaxis&pn=Blue%20Tokai&cu=INR", category: "cafe", aliases: ["blue tokai"] },
-    { id: "chai-point", name: "Chai Point", address: "21 Church St, Bengaluru", lat: 12.9719, lng: 77.5951,
+    { id: "chai-point", name: "Chai Point", address: "Church St, Bengaluru", lat: 12.9719, lng: 77.5951,
       upiUri: "upi://pay?pa=chaipoint@ybl&pn=Chai%20Point&cu=INR", category: "tea", aliases: ["chai point"] },
   ]);
 }

@@ -1,95 +1,132 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-type="software" data-radius="sharp" data-buttons="tonal" data-motion>
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Glance Pay — Testnet Payment Demo</title>
+<meta name="description" content="Testnet console for hands-free stablecoin payments on smart glasses: sign a USDC transfer on Base Sepolia, verify it on-chain and email the receipt." />
+<meta name="theme-color" content="#f7f9f8" />
+<meta name="site-kind" content="software" />
+<meta name="page-type" content="software" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400..500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/system.css" />
+<link rel="stylesheet" href="assets/motion/motion.css" />
 <link rel="stylesheet" href="styles.css" />
+<script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
+<script type="module" src="assets/motion/motion.js"></script>
 </head>
 <body>
-<header>
-  <div class="brand"><span class="logo">G</span><div><b>Glance Pay</b><small>stablecoin → UPI on smart glasses</small></div></div>
-  <div class="badges"><span class="badge test">BASE SEPOLIA · TESTNET</span><span class="badge" id="chain-badge">chain: …</span></div>
+<header class="appbar">
+  <a class="skip-link" href="#top">Skip to content</a>
+  <a class="brand" href="#top"><span class="mark" data-mark="ring" aria-hidden="true"></span><b>Glance Pay</b><span class="brand__sub">/ console</span></a>
+  <nav class="appnav" aria-label="Workspace">
+    <a class="appnav__link is-active" href="#pay-panel">Pay</a>
+    <a class="appnav__link" href="#activity-panel">Activity</a>
+    <a class="appnav__link" href="#network-panel">Network</a>
+  </nav>
+  <div class="appbar__right"><span class="env">TESTNET</span><span class="chain" id="chain-badge">chain: …</span></div>
 </header>
 
-<main>
-  <section class="intro">
-    <h1>Pay onchain.<br/><span>Get a receipt by email.</span></h1>
-    <p>This is a real testnet flow. Connect a browser wallet, fund it with test USDC, sign a USDC transfer, and the backend verifies the transaction on Base Sepolia before emailing a receipt. <b>No mock payment path exists.</b></p>
-    <div class="checklist">
+<div class="shell" id="top">
+  <aside class="sidebar">
+    <p class="side__label">Workspace</p>
+    <a class="side__link is-active" href="#pay-panel"><span class="side__ico" aria-hidden="true">◈</span>Pay</a>
+    <a class="side__link" href="#activity-panel"><span class="side__ico" aria-hidden="true">≡</span>Activity</a>
+    <a class="side__link" href="#network-panel"><span class="side__ico" aria-hidden="true">⌁</span>Network</a>
+    <div class="side__foot"><b>Base Sepolia</b><br />chain 84532<br />No real funds</div>
+  </aside>
+
+  <main class="workspace">
+    <div class="pagehead">
+      <div><p class="eyebrow">Hands-free payments · G2 glasses</p><h1>Payment console</h1><p class="pagehead__sub">Sign a test USDC transfer. The backend verifies it on-chain and emails the receipt.</p></div>
+      <div class="pagehead__meta"><span>Test USDC · Base Sepolia</span><span id="session-time">Session active</span></div>
+    </div>
+
+    <div class="checklist" aria-label="Payment progress">
       <div id="step-connect"><b>1</b> Connect wallet</div>
       <div id="step-fund"><b>2</b> Fund on testnet</div>
       <div id="step-sign"><b>3</b> Sign &amp; pay</div>
       <div id="step-receipt"><b>4</b> Email receipt</div>
     </div>
-  </section>
 
-  <div class="layout">
-    <aside class="card lens-card">
-      <div class="card-title">GLASSES LENS PREVIEW <span id="lens-state">IDLE</span></div>
-      <div class="lens"><div id="l1">Glance Pay</div><div id="l2">Connect wallet</div><div id="l3">to begin</div></div>
-      <p class="fine">The G2 shows three short text lines. This panel previews what the wearer sees at each step.</p>
-      <div class="balance-box">
-        <h3>Your testnet balances</h3>
-        <p id="wallet-line">Wallet: not connected</p>
-        <p>ETH (gas): <b id="eth-balance">—</b></p>
-        <p>USDC: <b id="usdc-balance">—</b></p>
-        <button id="refresh-balance" class="btn small">Refresh balances</button>
-      </div>
-    </aside>
+    <div class="grid">
+      <section class="panel" id="pay-panel" aria-labelledby="pay-h">
+        <div class="panel__head"><h2 id="pay-h">New payment</h2><span class="panel__tag">onchain</span></div>
+        <div class="tabs" role="tablist" aria-label="Console view">
+          <button id="tab-user" class="tab active" type="button" role="tab" aria-selected="true">Pay</button>
+          <button id="tab-admin" class="tab" type="button" role="tab" aria-selected="false">Admin · merchants</button>
+        </div>
 
-    <section class="card main-card">
-      <div class="tabs">
-        <button id="tab-user" class="tab active">Pay</button>
-        <button id="tab-admin" class="tab">Admin · merchants &amp; receipts</button>
-      </div>
-
-      <div id="user-view">
-        <div class="fund-box">
-          <h3>Fund your wallet (testnet only)</h3>
-          <p class="fine">Circle faucet: 20 test USDC every 2 hours · Base faucet: test ETH for gas.</p>
-          <div class="fund-links">
-            <a id="faucet-usdc" class="btn" href="https://faucet.circle.com/" target="_blank" rel="noopener">Get test USDC ↗</a>
-            <a id="faucet-eth" class="btn" href="https://docs.base.org/get-started/get-funds" target="_blank" rel="noopener">Get test ETH ↗</a>
+        <div id="user-view" role="tabpanel">
+          <div class="fund">
+            <div class="fund__head"><h3>Testnet funds</h3><span class="fund__note">faucet only · no real value</span></div>
+            <div class="fund__links">
+              <a id="faucet-usdc" class="btn" href="https://faucet.circle.com/" target="_blank" rel="noopener">Get test USDC ↗</a>
+              <a id="faucet-eth" class="btn" href="https://docs.base.org/get-started/get-funds" target="_blank" rel="noopener">Get test ETH ↗</a>
+            </div>
+          </div>
+          <div class="fields">
+            <div class="field"><label for="connect">Wallet</label><button id="connect" class="btn primary" type="button">Connect wallet</button><p id="wallet" class="field__hint">No wallet connected</p></div>
+            <div class="field"><label for="merchant">Merchant</label><select id="merchant"></select></div>
+            <div class="field"><label for="amount">Amount (INR)</label><input id="amount" type="number" min="1" max="500" step="0.01" value="12.50" /></div>
+            <div class="field"><label for="usdc-amount">USDC to sign</label><input id="usdc-amount" value="≈ 0.15 USDC" readonly /></div>
+          </div>
+          <button id="pay" class="btn primary btn--wide" type="button">Sign transaction &amp; pay</button>
+          <div id="status" class="status" role="status">Connect a wallet with Base Sepolia test USDC to begin.</div>
+          <div id="activity-panel" class="panel__section">
+            <div class="section__head"><h3>Your payments</h3><span class="section__note">verified onchain</span></div>
+            <div id="payments" class="list">No payments yet.</div>
           </div>
         </div>
 
-        <div class="field-row">
-          <div class="field"><label>Session wallet</label><button id="connect" class="btn primary">Connect wallet</button><p id="wallet" class="fine">No wallet connected</p></div>
-          <div class="field"><label>Merchant</label><select id="merchant"></select></div>
+        <div id="admin-view" role="tabpanel" hidden>
+          <div class="section__head"><h3>Onboard a merchant</h3><span class="section__note">admin</span></div>
+          <form id="onboard-form" class="form">
+            <label for="m-name">Merchant name<input id="m-name" placeholder="Café X" required /></label>
+            <label for="m-address">Address<input id="m-address" placeholder="Church Street" required /></label>
+            <label for="m-lat">Latitude<input id="m-lat" value="12.9716" required /></label>
+            <label for="m-lng">Longitude<input id="m-lng" value="77.5946" required /></label>
+            <label class="form__wide" for="m-upi">UPI URI<input id="m-upi" placeholder="upi://pay?pa=merchant@upi&amp;cu=INR" required /></label>
+            <label for="m-category">Category<input id="m-category" value="cafe" /></label>
+            <button type="submit" class="btn primary">Add merchant</button>
+          </form>
+          <p id="onboard-status" class="field__hint"></p>
+          <div class="section__head"><h3>Registered merchants</h3></div>
+          <div id="admin-merchants" class="list"></div>
+          <div class="section__head"><h3>All verified payments</h3></div>
+          <div id="admin-payments" class="list">Loading…</div>
         </div>
-        <div class="field-row">
-          <div class="field"><label>Amount (INR)</label><input id="amount" type="number" min="1" max="500" step="0.01" value="12.50" /></div>
-          <div class="field"><label>USDC to sign</label><input id="usdc-amount" value="≈ 0.15 USDC" readonly /></div>
-        </div>
-        <button id="pay" class="btn primary wide-btn">Sign transaction &amp; pay</button>
-        <div id="status" class="status">Connect a wallet with Base Sepolia test USDC to begin.</div>
-        <h3>Your past payments</h3>
-        <div id="payments" class="list">No payments yet.</div>
-      </div>
+      </section>
 
-      <div id="admin-view" hidden>
-        <h3>Onboard a merchant</h3>
-        <form id="onboard-form" class="form-grid">
-          <input id="m-name" placeholder="Merchant name" required />
-          <input id="m-address" placeholder="Address" required />
-          <input id="m-lat" placeholder="Latitude" value="12.9716" required />
-          <input id="m-lng" placeholder="Longitude" value="77.5946" required />
-          <input id="m-upi" class="wide" placeholder="upi://pay?pa=merchant@upi&cu=INR" required />
-          <input id="m-category" placeholder="Category" value="cafe" />
-          <button type="submit" class="btn primary">Add merchant</button>
-        </form>
-        <p id="onboard-status" class="fine"></p>
-        <h3>Registered merchants</h3>
-        <div id="admin-merchants" class="list"></div>
-        <h3>All verified payments &amp; receipts</h3>
-        <div id="admin-payments" class="list">Loading…</div>
-      </div>
-    </section>
-  </div>
+      <div class="rail">
+        <section class="panel lens-panel" aria-labelledby="lens-h">
+          <div class="panel__head"><h2 id="lens-h">Lens preview</h2><span class="state" id="lens-state">IDLE</span></div>
+          <div class="lens" role="img" aria-label="G2 lens preview with three lines of text">
+            <div id="l1">Glance Pay</div><div id="l2">Connect wallet</div><div id="l3">to begin</div>
+          </div>
+          <p class="field__hint">The G2 shows three short lines. This panel mirrors what the wearer sees.</p>
+          <div class="balances">
+            <div class="section__head"><h3>Balances</h3><button id="refresh-balance" class="btn btn--sm" type="button">Refresh</button></div>
+            <dl class="kv"><dt>Wallet</dt><dd id="wallet-line">not connected</dd></dl>
+            <dl class="kv"><dt>ETH (gas)</dt><dd id="eth-balance">—</dd></dl>
+            <dl class="kv"><dt>USDC</dt><dd id="usdc-balance">—</dd></dl>
+          </div>
+        </section>
 
-  <p class="disclaimer"><b>Scope:</b> testnet only. The on-chain leg is real (Base Sepolia USDC, verified by the backend). The bank/UPI settlement step is represented by the receipt email in this hackathon build; a production integration would replace that email call with the payout partner's API. No private keys are sent to this server.</p>
-</main>
-<script type="module" src="app.js"></script>
+        <section class="panel" id="network-panel" aria-labelledby="net-h">
+          <div class="panel__head"><h2 id="net-h">Network</h2><span class="panel__tag">verified</span></div>
+          <dl class="kv"><dt>Chain</dt><dd>Base Sepolia · 84532</dd></dl>
+          <dl class="kv"><dt>USDC</dt><dd class="mono">0x036CbD…C2318f3dCF7e</dd></dl>
+          <dl class="kv"><dt>Check</dt><dd>onchain receipt</dd></dl>
+          <dl class="kv"><dt>Keys</dt><dd>never sent to server</dd></dl>
+          <p class="field__hint scope"><b>Scope:</b> testnet only. A production build swaps the receipt email for the payout partner's API.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+<script type="module" src="./app.js"></script>
 </body>
 </html>
