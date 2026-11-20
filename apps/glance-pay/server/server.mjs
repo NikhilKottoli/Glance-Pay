@@ -1,7 +1,6 @@
-// Glance Pay deployable demo server.
-// Payout is an interface: the default stub emails a receipt via Resend; a real
-// bank/UPI API can be dropped in by implementing PayoutProvider and setting
-// PAYOUT_PROVIDER=bank. No secrets are logged or returned to the browser.
+// Glance Pay — single real demo app server.
+// Flow: browser wallet signs a real Base Sepolia USDC transfer → backend verifies the
+// on-chain receipt → backend emails the receipt via Resend. No mock payout path exists.
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
@@ -25,59 +24,92 @@ const env = { ...loadEnv(), ...process.env };
 const PORT = Number(env.PORT || 8787);
 const EMAIL_TO = env.PAYOUT_EMAIL_TO || "nikhilkottoli2005@gmail.com";
 
+const CHAIN = Object.freeze({
+  chainId: 84532,
+  chainName: "Base Sepolia",
+  rpcUrl: "https://sepolia.base.org",
+  explorer: "https://sepolia.basescan.org",
+  usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", // Circle docs, 6 decimals
+  treasury: (env.PAYOUT_TREASURY_ADDRESS || "0x1111111111111111111111111111111111111111").toLowerCase(),
+  usdcDecimals: 6,
+});
+const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
+
 const MERCHANTS_FILE = path.join(DATA, "merchants.json");
 const PAYMENTS_FILE = path.join(DATA, "payments.json");
 const readJson = (f, fallback) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return fallback; } };
 const writeJson = (f, v) => fs.writeFileSync(f, JSON.stringify(v, null, 2));
-
 if (!fs.existsSync(MERCHANTS_FILE)) {
-  const seed = readJson(path.resolve(__dirname, "../demo/data/merchants.json"), []);
-  writeJson(MERCHANTS_FILE, seed);
+  writeJson(MERCHANTS_FILE, [
+    { id: "cafe-x", name: "Café X", address: "12 Church St, Bengaluru", lat: 12.9716, lng: 77.5946,
+      upiUri: "upi://pay?pa=cafex@upi&pn=Cafe%20X&cu=INR", category: "cafe", aliases: ["cafe x"] },
+    { id: "blue-tokai", name: "Blue Tokai", address: "14 Church St, Bengaluru", lat: 12.97172, lng: 77.59475,
+      upiUri: "upi://pay?pa=bluetokai@okaxis&pn=Blue%20Tokai&cu=INR", category: "cafe", aliases: ["blue tokai"] },
+    { id: "chai-point", name: "Chai Point", address: "21 Church St, Bengaluru", lat: 12.9719, lng: 77.5951,
+      upiUri: "upi://pay?pa=chaipoint@ybl&pn=Chai%20Point&cu=INR", category: "tea", aliases: ["chai point"] },
+  ]);
 }
 
-// ---------------- Payout provider interface ----------------
-class PayoutProvider {
-  get name() { return "abstract"; }
-  async pay() { throw new Error("Not implemented"); }
+async function rpc(method, params = []) {
+  const res = await fetch(CHAIN.rpcUrl, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+  });
+  if (!res.ok) throw new Error(`RPC ${method} failed (${res.status})`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message || "RPC error");
+  return data.result;
 }
+const amountUnits = (inr) => BigInt(Math.round((Number(inr) * 1_000_000) / 83));
 
-class StubEmailPayoutProvider extends PayoutProvider {
-  get name() { return "stub-email"; }
-  async pay({ merchant, amount }) {
-    const key = env.RESEND_API_KEY;
-    if (!key) throw new Error("RESEND_API_KEY is not configured");
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: "Glance Pay <onboarding@resend.dev>",
-        to: EMAIL_TO,
-        subject: `Glance Pay — paid ₹${amount.toFixed(2)} to ${merchant.name}`,
-        html: `<h2>Payment receipt — Glance Pay (testnet demo)</h2>
-               <p><b>Merchant:</b> ${merchant.name}</p>
-               <p><b>Amount:</b> ₹${amount.toFixed(2)} (≈ ${(amount / 83).toFixed(2)} USDC)</p>
-               <p><b>UPI handle:</b> ${merchant.upiUri}</p>
-               <p><b>Status:</b> PAID (mock payout)</p>
-               <p style="color:#666">No real money moved. This stub exists so a real bank/UPI API can be swapped in later.</p>`,
-      }),
-    });
-    if (!res.ok) throw new Error(`Receipt email failed (${res.status})`);
-    const data = await res.json();
-    return { provider: this.name, emailId: data.id, state: "COMPLETED" };
+async function verifyOnChain(txHash, amountInr) {
+  if (!/^0x[0-9a-fA-F]{64}$/.test(txHash || "")) throw new Error("Invalid transaction hash");
+  let receipt = null;
+  for (let i = 0; i < 10 && !receipt; i++) {
+    receipt = await rpc("eth_getTransactionReceipt", [txHash]);
+    if (!receipt) await new Promise((r) => setTimeout(r, 1000));
   }
+  if (!receipt) throw new Error("Transaction not mined yet — try again in a moment");
+  if (receipt.status !== "0x1") throw new Error("Transaction reverted on-chain");
+  if ((receipt.to || "").toLowerCase() !== CHAIN.usdc) throw new Error("Transaction was not a USDC transfer");
+
+  const expected = amountUnits(amountInr);
+  const transfer = (receipt.logs || []).find((l) =>
+    (l.address || "").toLowerCase() === CHAIN.usdc && l.topics?.[0] === TRANSFER_TOPIC && l.topics?.[2]);
+  if (!transfer) throw new Error("No USDC Transfer event found in the transaction");
+  const to = "0x" + transfer.topics[2].slice(-40).toLowerCase();
+  const from = "0x" + (transfer.topics[1] || "").slice(-40).toLowerCase();
+  const value = BigInt(transfer.data);
+  if (to !== CHAIN.treasury) throw new Error("Wrong recipient — payment not credited");
+  if (value < expected) throw new Error(`Underpaid: expected ${expected} base units, got ${value}`);
+  return { from, to, value: value.toString(), blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed };
 }
 
-// Drop-in point for a real bank/UPI rail. Implement pay() against the bank's
-// API (signed request, idempotency key, webhook for settlement), then set
-// PAYOUT_PROVIDER=bank. Nothing else in this server needs to change.
-class BankApiPayoutProvider extends PayoutProvider {
-  get name() { return "bank"; }
-  async pay() { throw new Error("Bank payout API not configured — implement BankApiPayoutProvider.pay()"); }
+async function sendReceiptEmail({ merchant, amount, usdc, wallet, verification, txHash }) {
+  const key = env.RESEND_API_KEY;
+  if (!key) throw new Error("RESEND_API_KEY is not configured");
+  const link = `${CHAIN.explorer}/tx/${txHash}`;
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from: "Glance Pay <onboarding@resend.dev>",
+      to: EMAIL_TO,
+      subject: `Glance Pay — paid ₹${amount.toFixed(2)} to ${merchant.name}`,
+      html: `<h2>Payment receipt — Glance Pay</h2>
+             <p><b>Merchant:</b> ${merchant.name}</p>
+             <p><b>Amount:</b> ₹${amount.toFixed(2)} (${usdc} USDC on Base Sepolia)</p>
+             <p><b>UPI handle:</b> ${merchant.upiUri}</p>
+             <p><b>Payer:</b> ${wallet}</p>
+             <p><b>On-chain tx:</b> <a href="${link}">${txHash}</a> (block ${verification.blockNumber})</p>
+             <p><b>Status:</b> VERIFIED ON-CHAIN · receipt sent</p>
+             <p style="color:#666">Testnet only — test USDC has no real value. The bank/UPI payout step is represented by this receipt email in the hackathon build.</p>`,
+    }),
+  });
+  if (!res.ok) throw new Error(`Receipt email failed (${res.status})`);
+  return (await res.json()).id;
 }
 
-const provider = env.PAYOUT_PROVIDER === "bank" ? new BankApiPayoutProvider() : new StubEmailPayoutProvider();
-
-// ---------------- helpers ----------------
 const json = (res, status, body) => {
   res.writeHead(status, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type", "Access-Control-Allow-Methods": "GET,POST,OPTIONS" });
@@ -88,20 +120,21 @@ async function body(req) {
   for await (const chunk of req) raw += chunk;
   try { return JSON.parse(raw || "{}"); } catch { return {}; }
 }
-const UPIS = /^upi:\/\/pay\?pa=[^&\s]+/;
+const UPI_RE = /^upi:\/\/pay\?pa=[^&\s]+/;
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };
 
-// ---------------- API ----------------
 async function api(req, res, url) {
   if (url.pathname === "/api/health") {
-    return json(res, 200, { ok: true, provider: provider.name, emailTo: EMAIL_TO, time: new Date().toISOString() });
+    return json(res, 200, { ok: true, mode: "real-onchain-testnet", chain: CHAIN.chainName,
+      chainId: CHAIN.chainId, emailTo: EMAIL_TO, time: new Date().toISOString() });
   }
+  if (url.pathname === "/api/chain") return json(res, 200, CHAIN);
   if (url.pathname === "/api/merchants" && req.method === "GET") {
     return json(res, 200, { merchants: readJson(MERCHANTS_FILE, []) });
   }
   if (url.pathname === "/api/merchants" && req.method === "POST") {
     const b = await body(req);
-    if (!b.name || !b.address || !UPIS.test(b.upiUri || "") ||
+    if (!b.name || !b.address || !UPI_RE.test(b.upiUri || "") ||
         !Number.isFinite(Number(b.lat)) || !Number.isFinite(Number(b.lng))) {
       return json(res, 400, { error: "name, address, valid UPI URI and numeric lat/lng are required" });
     }
@@ -121,34 +154,34 @@ async function api(req, res, url) {
   }
   if (url.pathname === "/api/pay" && req.method === "POST") {
     const b = await body(req);
-    const merchants = readJson(MERCHANTS_FILE, []);
-    const merchant = merchants.find((m) => m.id === b.merchantId);
+    const merchant = readJson(MERCHANTS_FILE, []).find((m) => m.id === b.merchantId);
     const amount = Number(b.amount);
     if (!merchant) return json(res, 400, { error: "Unknown merchant" });
     if (!Number.isFinite(amount) || amount <= 0 || amount > 500) {
       return json(res, 400, { error: "Amount must be between 0 and 500 INR" });
     }
     try {
-      const result = await provider.pay({ merchant, amount, wallet: b.wallet });
+      const verified = await verifyOnChain(b.txHash, amount);
+      const usdc = Number(amountUnits(amount)) / 1_000_000;
+      const emailId = await sendReceiptEmail({ merchant, amount, usdc, wallet: b.wallet, verification: verified, txHash: b.txHash });
       const payment = {
         id: `pay-${Date.now().toString(36)}`, time: new Date().toISOString(),
-        merchantId: merchant.id, merchant: merchant.name, amount,
-        usdc: Number((amount / 83).toFixed(2)), wallet: b.wallet || "unconnected",
-        state: "RELEASED", txHash: `0x${Date.now().toString(16)}${Math.random().toString(16).slice(2, 8)}`,
-        provider: result.provider, emailId: result.emailId || null,
+        merchantId: merchant.id, merchant: merchant.name, amount, usdc,
+        wallet: b.wallet || "unconnected", state: "RELEASED",
+        txHash: b.txHash, blockNumber: verified.blockNumber, from: verified.from,
+        explorerLink: `${CHAIN.explorer}/tx/${b.txHash}`, emailId,
       };
       const payments = readJson(PAYMENTS_FILE, []);
       payments.unshift(payment);
       writeJson(PAYMENTS_FILE, payments.slice(0, 50));
       return json(res, 200, { ok: true, payment, receiptEmail: EMAIL_TO });
     } catch (e) {
-      return json(res, 502, { error: e.message });
+      return json(res, 400, { error: e.message });
     }
   }
   return json(res, 404, { error: "Not found" });
 }
 
-// ---------------- static ----------------
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   if (req.method === "OPTIONS") return json(res, 204, {});
@@ -161,7 +194,6 @@ const server = http.createServer(async (req, res) => {
   res.writeHead(200, { "Content-Type": MIME[path.extname(full)] || "application/octet-stream" });
   fs.createReadStream(full).pipe(res);
 });
-
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Glance Pay demo listening on http://0.0.0.0:${PORT} (payout provider: ${provider.name})`);
+  console.log(`Glance Pay listening on http://0.0.0.0:${PORT} · Base Sepolia USDC · on-chain verify + email receipt`);
 });

@@ -12,41 +12,69 @@ const lens = (a, b, c, state) => {
   if (state) $("lens-state").textContent = state;
 };
 const status = (html, kind = "") => { $("status").innerHTML = html; $("status").className = `status ${kind}`; };
-let wallet = localStorage.getItem("gp-wallet") || null;
+const done = (n) => $(`step-${n}`).classList.add("done");
+const pad32 = (hex) => String(hex).replace(/^0x/, "").padStart(64, "0");
+const units = (inr) => BigInt(Math.round((Number(inr) * 1_000_000) / 83)); // same formula as backend
+
+let cfg = null;
+let account = null;
 let merchants = [];
 
-function renderWallet() {
-  $("wallet").textContent = wallet ? `Connected: ${wallet} (capped demo wallet)` : "Not connected";
-  $("connect").textContent = wallet ? "Wallet connected" : "Connect wallet";
-  $("connect").disabled = !!wallet;
-}
-function renderMerchants() {
-  $("merchant").innerHTML = merchants.map((m) => `<option value="${m.id}">${m.name} — ${m.category}</option>`).join("");
-  $("admin-merchants").innerHTML = merchants.map((m) =>
-    `<div><b>${m.name}</b> · ${m.address} · ${m.upiUri}</div>`).join("");
-}
-function renderPayments(list, target) {
-  $(target).innerHTML = list.length ? list.map((p) =>
-    `<div><b>${p.merchant}</b> · ₹${p.amount.toFixed(2)} · ${p.state} · ${new Date(p.time).toLocaleString()}` +
-    `${p.emailId ? `<br>Receipt email id: ${p.emailId}` : ""}</div>`).join("") : "No payments yet.";
-}
-async function refreshPayments() {
-  const { payments } = await api("/api/payments");
-  renderPayments(payments, "admin-payments");
-  renderPayments(payments.filter((p) => !wallet || p.wallet === wallet), "payments");
+function short(addr) { return addr ? `${addr.slice(0, 8)}…${addr.slice(-4)}` : "—"; }
+
+async function switchToChain() {
+  const chainIdHex = "0x" + cfg.chainId.toString(16);
+  try {
+    await ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: chainIdHex }] });
+  } catch (e) {
+    if (e.code !== 4902) throw e;
+    await ethereum.request({ method: "wallet_addEthereumChain", params: [{
+      chainId: chainIdHex, chainName: cfg.chainName,
+      nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+      rpcUrls: [cfg.rpcUrl], blockExplorerUrls: [cfg.explorer],
+    }] });
+  }
 }
 
-$("connect").addEventListener("click", () => {
-  wallet = "0x" + Math.random().toString(16).slice(2, 10) + "…cafe";
-  localStorage.setItem("gp-wallet", wallet);
-  renderWallet();
-  status("Wallet connected. Pick a merchant and press <b>Pay with Glance</b>.");
-  lens("Wallet ready", "Capped session wallet", "Choose a merchant", "IDLE");
+async function refreshBalances() {
+  if (!account) return;
+  const ethHex = await ethereum.request({ method: "eth_getBalance", params: [account, "latest"] });
+  const usdcHex = await ethereum.request({ method: "eth_call",
+    params: [{ to: cfg.usdc, data: "0x70a08231" + pad32(account) }, "latest"] });
+  $("eth-balance").textContent = (Number(BigInt(ethHex)) / 1e18).toFixed(5);
+  $("usdc-balance").textContent = (Number(BigInt(usdcHex)) / 1e6).toFixed(4);
+}
+
+$("connect").addEventListener("click", async () => {
+  try {
+    if (!window.ethereum) throw new Error("No browser wallet found. Install MetaMask, then reload.");
+    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+    account = accounts[0];
+    const chainId = await ethereum.request({ method: "eth_chainId" });
+    if (parseInt(chainId, 16) !== cfg.chainId) await switchToChain();
+    $("wallet").textContent = `Connected: ${short(account)}`;
+    $("connect").textContent = "Wallet connected";
+    $("connect").disabled = true;
+    done("connect");
+    await refreshBalances();
+    done("fund");
+    lens("Wallet ready", short(account), "pick a merchant", "IDLE");
+    status("Wallet connected on Base Sepolia. Use the faucet links if balances are zero, then press <b>Sign transaction &amp; pay</b>.");
+    await refreshPayments();
+  } catch (e) {
+    status(`Wallet connection failed: ${e.message}`, "err");
+  }
+});
+
+$("refresh-balance").addEventListener("click", async () => {
+  try { await refreshBalances(); done("fund"); }
+  catch (e) { status(`Balance check failed: ${e.message}`, "err"); }
 });
 
 function previewSelection() {
   const m = merchants.find((x) => x.id === $("merchant").value);
   const amount = Number($("amount").value);
+  if (amount > 0) $("usdc-amount").value = `≈ ${(amount / 83).toFixed(4)} USDC`;
   if (m && amount > 0) lens(m.name, `₹${amount.toFixed(2)}`, "confirm on lens", "CONFIRM");
 }
 $("merchant").addEventListener("change", previewSelection);
@@ -55,24 +83,32 @@ $("amount").addEventListener("input", previewSelection);
 $("pay").addEventListener("click", async () => {
   const merchant = merchants.find((m) => m.id === $("merchant").value);
   const amount = Number($("amount").value);
-  if (!merchant) return status("Please onboard a merchant first (Admin tab).", "err");
+  if (!account) return status("Connect your wallet first.", "err");
+  if (!merchant) return status("Select a merchant first.", "err");
   if (!(amount > 0 && amount <= 500)) return status("Amount must be between ₹0 and ₹500.", "err");
   $("pay").disabled = true;
   try {
-    lens(merchant.name, `₹${amount.toFixed(2)}`, "confirm on lens", "CONFIRM");
-    status("Quote created. Signing…", "");
-    await new Promise((r) => setTimeout(r, 350));
-    lens("Paying…", "Via RupeeRail", "mock payout", "PENDING");
+    const value = units(amount);
+    const data = "0xa9059cbb" + pad32(cfg.treasury) + value.toString(16).padStart(64, "0");
+    lens("Sign in wallet", `${(amount / 83).toFixed(4)} USDC`, "approve the tx", "SIGNING");
+    status("Waiting for your wallet signature…");
+    const txHash = await ethereum.request({ method: "eth_sendTransaction",
+      params: [{ from: account, to: cfg.usdc, data }] });
+    done("sign");
+    lens("Signed", "Submitted onchain", "verifying…", "PENDING");
+    status("Transaction submitted. Backend is verifying the on-chain receipt…");
     const res = await api("/api/pay", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ merchantId: merchant.id, amount, wallet }),
+      body: JSON.stringify({ merchantId: merchant.id, amount, wallet: account, txHash }),
     });
+    done("receipt");
     lens(`Paid ₹${amount.toFixed(2)}`, `to ${merchant.name}`, "receipt emailed", "SUCCESS");
-    status(`<b>Paid ₹${amount.toFixed(2)} to ${merchant.name}.</b><br>A receipt email was sent to ${res.receiptEmail}. ` +
-      `Email id: ${res.payment.emailId} · tx ${res.payment.txHash}`, "ok");
+    status(`<b>Payment verified on Base Sepolia.</b><br>Receipt emailed to ${res.receiptEmail} · email id ${res.payment.emailId}<br>` +
+      `<a href="${res.payment.explorerLink}" target="_blank" rel="noopener">View transaction ${short(txHash)} ↗</a>`, "ok");
+    await refreshBalances();
     await refreshPayments();
   } catch (e) {
-    lens("Payment failed", "No money moved", "try again", "FAILED");
+    lens("Payment failed", "No charge made", "see message", "FAILED");
     status(`Payment failed: ${e.message}`, "err");
   } finally {
     $("pay").disabled = false;
@@ -106,20 +142,35 @@ $("tab-admin").addEventListener("click", () => {
   refreshPayments();
 });
 
+function renderMerchants() {
+  $("merchant").innerHTML = merchants.map((m) => `<option value="${m.id}">${m.name} — ${m.category}</option>`).join("");
+  $("admin-merchants").innerHTML = merchants.map((m) =>
+    `<div><b>${m.name}</b> · ${m.address} · ${m.upiUri}</div>`).join("");
+  previewSelection();
+}
+function renderPayments(list, target) {
+  $(target).innerHTML = list.length ? list.map((p) =>
+    `<div><b>${p.merchant}</b> · ₹${p.amount.toFixed(2)} · ${p.usdc} USDC · ${p.state}` +
+    `${p.explorerLink ? ` · <a href="${p.explorerLink}" target="_blank" rel="noopener">tx ↗</a>` : ""}` +
+    `${p.emailId ? `<br>Receipt email id: ${p.emailId}` : ""}</div>`).join("") : "No payments yet.";
+}
+async function refreshPayments() {
+  const { payments } = await api("/api/payments");
+  renderPayments(payments, "admin-payments");
+  renderPayments(payments.filter((p) => !account || p.wallet === account), "payments");
+}
 async function loadMerchants() {
-  const data = await api("/api/merchants");
-  merchants = data.merchants;
+  merchants = (await api("/api/merchants")).merchants;
   renderMerchants();
 }
 
 (async () => {
   try {
-    const health = await api("/api/health");
-    $("provider-badge").textContent = `payout: ${health.provider}`;
+    cfg = await api("/api/chain");
+    $("chain-badge").textContent = `${cfg.chainName} · ${cfg.chainId}`;
     await loadMerchants();
-    renderWallet();
     await refreshPayments();
   } catch (e) {
-    status(`Cannot reach the demo API: ${e.message}`, "err");
+    status(`Cannot reach backend: ${e.message}`, "err");
   }
 })();

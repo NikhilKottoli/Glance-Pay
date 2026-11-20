@@ -3,34 +3,32 @@
 Hands-free stablecoin → UPI payments on Even Realities G2 smart glasses, built on
 [RupeeRail](https://github.com/NikhilKottoli/RupeeRail). Testnet only.
 
-## Deployable demo (testnet-style)
+## Single UI — real testnet flow
 
-A live web app with a swappable payout stub is in `apps/glance-pay/web/` +
-`apps/glance-pay/server/`. On payment it emails a receipt via Resend; no money moves.
-Run with `node apps/glance-pay/server/server.mjs` (see the server README for env vars
-and how to swap in a real bank/UPI API).
-
-**Live link (Cloudflare quick tunnel, while the session is up):**
-https://extends-rapidly-para-police.trycloudflare.com
-
-## What is here
-
-- `apps/glance-pay/demo/` — interactive mock-mode product demo (G2 lens simulator +
-  paired phone). Two roles: **user** (connect wallet, view past payments) and
-  **admin** (onboard merchants, drive the simulated payment flow). See its README.
-- `report/` — completion report, narrated videos, builders and Telegram sender.
-- `screenshots/` — browser-MCP captures of the report and the product demo.
-
-## Run the demo
-
-```bash
-python3 -m http.server 8766 --bind 127.0.0.1 --directory apps/glance-pay/demo
-# open http://127.0.0.1:8766/index.html
-npm test --prefix apps/glance-pay/demo
+```
+apps/glance-pay/web/       # the only UI (HTML/CSS/JS)
+apps/glance-pay/server/    # Node server: on-chain verification + receipt email
 ```
 
-The attached 7-phase plan (environment, RupeeRail trace, lens UX, voice, merchant
-resolution, real payments, demo hardening) is specified in the project brief; the
-checkpoint implementation phases beyond the mock demo have not been executed yet.
+1. **Connect wallet** (MetaMask / EIP-1193, auto-switch to Base Sepolia).
+2. **Fund it** via Circle's test-USDC faucet and Base's test-ETH faucet.
+3. **Sign a real USDC transfer** on Base Sepolia (browser wallet).
+4. Backend **verifies the transaction on-chain**, then **emails the receipt via Resend**.
+
+There is no mock payment path. The bank/UPI settlement step is represented by the
+receipt email for the hackathon; a production integration swaps that call for the
+payout partner's API.
+
+```bash
+cp .env.example .env      # set RESEND_API_KEY, PAYOUT_EMAIL_TO, treasury
+node apps/glance-pay/server/server.mjs
+# http://127.0.0.1:8787
+```
+
+Live link (Cloudflare quick tunnel, while the session is up):
+https://extends-rapidly-para-police.trycloudflare.com
+
+`report/` holds the completion report and video artifacts from earlier iterations;
+it is not part of the running app.
 
 Author: Nikhil Kottoli <nikhilkottoli2005@gmail.com>

@@ -1,50 +1,45 @@
-# Glance Pay — deployable demo server
+# Glance Pay server — one real testnet flow
 
-A dependency-free Node 22 server that serves the web app in `apps/glance-pay/web/`
-and exposes a small JSON API. It is a **testnet-style prototype**: the payout is a
-stub that emails a receipt through Resend; no money moves.
+The only UI is `apps/glance-pay/web/`, served by this dependency-free Node 22 server.
 
-## Run locally
+## What actually happens
+
+1. The browser connects an EIP-1193 wallet (MetaMask) and switches/adds **Base Sepolia** (chain 84532).
+2. The user funds that address with **test USDC** (Circle faucet) and **test ETH** for gas.
+3. The user signs a real ERC-20 `transfer` of USDC to the treasury address configured in `.env`.
+4. The backend calls `eth_getTransactionReceipt` on `https://sepolia.base.org`, checks
+   status, USDC contract, Transfer log, recipient and amount, then **emails the receipt via Resend**.
+
+There is no mock payment path. The bank/UPI settlement step is represented by the
+receipt email in this hackathon build; replacing `sendReceiptEmail()` with the payout
+partner's API is the production follow-up.
+
+## Run
 
 ```bash
-# .env at the repository root (gitignored)
-# RESEND_API_KEY=re_...
-# PAYOUT_EMAIL_TO=you@example.com
-# PAYOUT_PROVIDER=stub-email   # or "bank"
-# PORT=8787
-
+cp .env.example .env   # then fill in RESEND_API_KEY and PAYOUT_EMAIL_TO
 node apps/glance-pay/server/server.mjs
 # http://127.0.0.1:8787
-node apps/glance-pay/server/smoke.mjs   # one real receipt email
 ```
+
+Env vars: `RESEND_API_KEY`, `PAYOUT_EMAIL_TO`, `PAYOUT_TREASURY_ADDRESS`, `PORT`.
+
+Verified constants (Circle docs): Base Sepolia USDC
+`0x036CbD53842c5426634e7929541eC2318f3dCF7e`, 6 decimals, chain ID 84532.
+Faucets: https://faucet.circle.com/ (20 test USDC / 2 h) and
+https://docs.base.org/get-started/get-funds (test ETH).
 
 ## API
 
 | Endpoint | Purpose |
 |---|---|
-| `GET /api/health` | provider name and recipient (no secrets) |
-| `GET /api/merchants` | registered merchants |
-| `POST /api/merchants` | admin onboarding (name, address, lat, lng, upiUri, category) |
-| `POST /api/pay` | `{merchantId, amount, wallet}` → quote → stub payout → receipt |
-| `GET /api/payments` | payment history with email ids and tx hashes |
-
-## Swapping in a real bank/UPI API
-
-`server.mjs` defines a `PayoutProvider` interface with two implementations:
-
-- `StubEmailPayoutProvider` (default) — sends a receipt via Resend.
-- `BankApiPayoutProvider` — implement `pay({merchant, amount, wallet})` against your
-  bank/payout API (signed request, idempotency key, settlement webhook), then set
-  `PAYOUT_PROVIDER=bank`. No other code needs to change.
+| `GET /api/health` | status, chain, recipient (no secrets) |
+| `GET /api/chain` | chainId, RPC, USDC contract, treasury, explorer |
+| `GET /api/merchants` / `POST /api/merchants` | admin merchant registry |
+| `POST /api/pay` | `{merchantId, amount, wallet, txHash}` → verify on-chain → email |
+| `GET /api/payments` | verified payments with tx hashes and email IDs |
 
 ## Public link
 
-For a quick public demo, expose the server with a tunnel:
-
-```bash
-cloudflared tunnel --url http://127.0.0.1:8787
-```
-
-Cloudflare quick tunnels have no uptime guarantee and the URL changes on restart.
-For a permanent link, deploy this directory to any Node host (Render, Fly, Railway,
-VPS) with the same environment variables and start command above.
+`cloudflared tunnel --url http://127.0.0.1:8787` gives a temporary public URL.
+For a permanent deployment, host this server on any Node platform with the same env vars.
