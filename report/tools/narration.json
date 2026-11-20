@@ -1,0 +1,76 @@
+{
+  "voice": "en-US-GuyNeural",
+  "rate": "-8%",
+  "slides": [
+    {
+      "image": "01-title.png",
+      "audio": "01-title.mp3",
+      "text": "Glance Pay completion report. Hands-free stablecoin to U P I payments on Even Realities G two smart glasses, built on RupeeRail. Seven delivery phases, one payment rail, and no mainnet funds. This report consolidates the plan, its decisions and its acceptance criteria."
+    },
+    {
+      "image": "02-product.png",
+      "audio": "02-product.mp3",
+      "text": "The product in one sentence: one spoken payment. The user says, pay twelve fifty. The phone combines G P S and a seeded merchant registry to find the merchant's U P I Q R payload. The lens shows the amount and merchant, the user taps to confirm, RupeeRail pays the merchant in rupees, and the lens reports the result."
+    },
+    {
+      "image": "03-architecture.png",
+      "audio": "03-architecture.mp3",
+      "text": "Architecture. The glasses provide a text display, microphone and ring input; there is no camera and no speaker. The phone app runs the state machine, voice parser, merchant resolver and a capped session wallet. RupeeRail supplies the quote, signing, escrow and U P I payout. Contracts stay untouched and the backend service is avoided."
+    },
+    {
+      "image": "04-plan.png",
+      "audio": "04-plan.mp3",
+      "text": "Delivery is seven phases, each ending in a checkpoint with acceptance checks, a commit and a tag. Phases one and two prove the toolchain and the exact payment calls. Phases three to five build the lens experience, voice parsing and merchant choice. Phases six and seven add real testnet payments, safety and demo hardening."
+    },
+    {
+      "image": "05-phase1.png",
+      "audio": "05-phase1.mp3",
+      "text": "Phase one, environment setup. Fork RupeeRail, initialize submodules, read the repository guidance, install Foundry, U V and Node, and confirm forge test passes. Start the backend on port eight seven eight eight, load the web app, fund a throwaway testnet wallet, research the G two S D K and simulator, scaffold the new app, and show hello world on the lens."
+    },
+    {
+      "image": "06-phase2.png",
+      "audio": "06-phase2.mp3",
+      "text": "Phase two traces the payment flow. Complete one full testnet payment to a sample U P I string and watch the state move from locked to completed to released. Document every endpoint, request and response shape, the E I P seven twelve domain and permit step, quote expiry and limits. Then build the headless pay command line tool and record four failure behaviours."
+    },
+    {
+      "image": "07-phase3.png",
+      "audio": "07-phase3.mp3",
+      "text": "Phase three builds the lens experience with fake data. A single state machine drives every screen: idle, listening, amount heard, resolving, pick merchant, confirm, signing, pending, then success or a safe terminal state. The confirm screen shows amount, merchant and countdown together. Mock mode needs no network, and a phone debug screen can trigger every event."
+    },
+    {
+      "image": "08-phase4.png",
+      "audio": "08-phase4.mp3",
+      "text": "Phase four turns speech into a validated amount. The pure parser accepts, pay twelve fifty, pay two hundred to Blue Tokai, and pay fifty rupees. It rejects missing, negative, zero, absurd or ambiguous amounts. A default five hundred rupee cap is enforced at parse time, and the parsed value is echoed on the lens before anything else happens."
+    },
+    {
+      "image": "09-phase5.png",
+      "audio": "09-phase5.mp3",
+      "text": "Phase five is the core novelty. A seeded registry of five to ten merchants includes two places within thirty metres to exercise disambiguation. Candidates are ranked by accuracy-weighted distance, name and alias matches, and past payments. A strong single match still goes to confirmation; there is never auto-pay. Location stays on the device."
+    },
+    {
+      "image": "10-phase6.png",
+      "audio": "10-phase6.mp3",
+      "text": "Phase six wires real testnet payments with safeguards. A swappable payment service quotes, signs, submits and polls. A dedicated low-balance session wallet has a capped on-chain allowance. Confirmations are single-use and tied to one quote; an expired quote is re-quoted and re-confirmed. Failures end in clear lens messages and a local audit log without secrets."
+    },
+    {
+      "image": "11-phase7.png",
+      "audio": "11-phase7.mp3",
+      "text": "Phase seven hardens the demo. A mock real toggle can be flipped mid-demo, with a fallback video script if hardware fails. The ninety-second story is a traveler with only stablecoins paying for chai, including a deliberate wrong-merchant cancellation to show safety. A reset script, a readme, honest limitations and a secret scan finish the release."
+    },
+    {
+      "image": "12-decisions.png",
+      "audio": "12-decisions.mp3",
+      "text": "Decisions are locked. RupeeRail only. Contracts untouched. The backend API is avoided. Testnet only. A capped session wallet, never the main wallet. Explicit confirmation, never auto-pay. Location and history stay on-device. New code lives only in the new app folder, with small glance commits and one checkpoint per phase."
+    },
+    {
+      "image": "13-questions.png",
+      "audio": "13-questions.mp3",
+      "text": "Open questions are a research gate, not guesses. Which G two S D K, runtime and language, and is there a simulator? Does the glasses expose raw audio, transcription, or neither? Is there a mock payout rail, or must we stub one? Which chain and faucets, where is key storage secure, and do vault caps constrain demo amounts? If blocked, stop and ask."
+    },
+    {
+      "image": "14-summary.png",
+      "audio": "14-summary.mp3",
+      "text": "Summary. Seven phases specified, each with tasks, acceptance checks and a checkpoint gate. Decisions locked, safety explicit, and the demo story defined end to end. The next action is to execute phase one and write checkpoint one. Plan complete, ready to build. Thank you."
+    }
+  ]
+}

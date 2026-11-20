@@ -1,0 +1,56 @@
+{
+  "voice": "en-US-GuyNeural",
+  "rate": "-8%",
+  "slides": [
+    {
+      "image": "01-idle.png",
+      "audio": "01-idle.mp3",
+      "text": "This is the actual Glance Pay product demo, running in mock mode. On the left is the G two lens view: three short lines of text, because the glasses have no camera and no speaker. On the right is the paired phone control and debug screen."
+    },
+    {
+      "image": "02-listening.png",
+      "audio": "02-listening.mp3",
+      "text": "The user makes an explicit start gesture. There is no always-on wake word. The phone screen shows the live state machine, now listening, and the lens invites the user to say, pay twelve fifty."
+    },
+    {
+      "image": "03-pick.png",
+      "audio": "03-pick.mp3",
+      "text": "The phrase pay twelve fifty is parsed into twelve rupees and fifty paise. Two seeded merchants are about fifteen metres apart, so the app does not guess. It shows a pick list; the cursor moves with the ring and a tap selects."
+    },
+    {
+      "image": "04-confirm.png",
+      "audio": "04-confirm.mp3",
+      "text": "After picking Cafe X, the confirm screen shows the amount in rupees and USDC, the merchant and a live countdown. A fresh quote is created at this moment. If it expires, the app re-quotes and asks for confirmation again rather than signing stale data."
+    },
+    {
+      "image": "05-pending.png",
+      "audio": "05-pending.mp3",
+      "text": "One tap signs the intent and submits the payment. The lens says paying, while the phone audit log records each state with a timestamp and transaction hash. A second tap is ignored: confirmation is single-use."
+    },
+    {
+      "image": "06-success.png",
+      "audio": "06-success.mp3",
+      "text": "The mock payout settles and the lens reads, paid twelve rupees fifty to Cafe X. This is a simulated testnet flow: no real wallet, no real UPI transfer and no funds moved."
+    },
+    {
+      "image": "07-cancel.png",
+      "audio": "07-cancel.mp3",
+      "text": "Safety path. A wrong merchant hint produces a candidate list. The user makes a distinct cancel gesture, and the lens confirms that nothing was charged. The app never auto-pays."
+    },
+    {
+      "image": "08-failure.png",
+      "audio": "08-failure.mp3",
+      "text": "Failure path. When the payout rail fails, the mock refunds the amount and the lens says, failed, refunded. The user is never left unsure whether money moved."
+    },
+    {
+      "image": "09-nomatch.png",
+      "audio": "09-nomatch.mp3",
+      "text": "If the phone is far from any seeded merchant, the app says, no merchant nearby, and exits. It does not invent a merchant to keep the flow going."
+    },
+    {
+      "image": "10-limit.png",
+      "audio": "10-limit.mp3",
+      "text": "Finally, a spoken amount above the five hundred rupee demo cap is refused at parse time, with a clear message on the lens. Glance Pay: hands-free payments, with safety built into every state."
+    }
+  ]
+}

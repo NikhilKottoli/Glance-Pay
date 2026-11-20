@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Glance Pay — Project Completion Report</title>
+<style>
+  :root{
+    --bg:#070d17; --bg2:#0d1726; --panel:#111f33; --panel2:#16263d;
+    --ink:#eaf2ff; --muted:#93a8c4; --cyan:#4de3d0; --gold:#ffc857;
+    --line:#253a56; --red:#ff7a8a; --green:#7ce0a3;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:48px 68px 60px;
+    background:radial-gradient(1100px 700px at 88% -10%,#12304a 0%,transparent 60%),
+               radial-gradient(900px 600px at -10% 110%,#16243d 0%,transparent 55%),var(--bg);}
+  .slide.active{display:flex}
+  .kicker{font-size:14px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);font-weight:700}
+  h1{font-size:58px;line-height:1.05;margin:12px 0 10px;letter-spacing:-.02em}
+  h2{font-size:38px;line-height:1.15;margin:8px 0 18px;letter-spacing:-.01em}
+  h3{font-size:19px;margin:0 0 8px;color:var(--gold)}
+  p{font-size:18px;line-height:1.5;color:var(--muted);margin:8px 0}
+  .lead{font-size:21px;color:#cddcf0;max-width:1000px}
+  .accent{color:var(--cyan)} .gold{color:var(--gold)} .green{color:var(--green)} .red{color:var(--red)}
+  .rule{height:2px;width:74px;background:var(--cyan);margin:18px 0 24px;border-radius:2px}
+  .grid{display:grid;gap:18px}
+  .g2{grid-template-columns:1fr 1fr} .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);
+    border-radius:14px;padding:18px 20px;box-shadow:0 10px 26px #0004}
+  .card p{font-size:15px;margin:6px 0 0}
+  .card.slim{padding:14px 16px}
+  .num{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;
+    border-radius:9px;background:#1d4250;color:var(--cyan);font-weight:800;font-size:16px;margin-bottom:8px}
+  ul{margin:8px 0 0;padding-left:22px} li{font-size:16px;line-height:1.55;color:#c7d7ec;margin:5px 0}
+  li b{color:var(--ink)}
+  .tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 13px;
+    font-size:13px;color:var(--muted);margin:4px 6px 0 0;background:#0c1929}
+  .tag.on{color:var(--cyan);border-color:#2c6e70;background:#0d2c31}
+  .tag.warn{color:var(--gold);border-color:#6b5829;background:#2a2413}
+  .footer{position:absolute;left:68px;right:68px;bottom:22px;display:flex;justify-content:space-between;
+    align-items:center;font-size:12px;letter-spacing:.08em;color:#6f86a5;text-transform:uppercase;
+    border-top:1px solid var(--line);padding-top:10px}
+  .flow{display:flex;align-items:stretch;gap:10px;margin-top:14px}
+  .step{flex:1;background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--cyan);
+    border-radius:12px;padding:14px 12px;min-height:118px}
+  .step .k{font-size:12px;color:var(--cyan);font-weight:800;letter-spacing:.1em}
+  .step .t{font-size:15px;margin-top:8px;color:var(--ink);line-height:1.35}
+  .arrow{align-self:center;color:var(--cyan);font-size:22px}
+  .lens{background:#04070c;border:2px solid #2e4b63;border-radius:16px;padding:20px 22px;
+    font-family:"Consolas","DejaVu Sans Mono",monospace;box-shadow:inset 0 0 40px #0b2c3a}
+  .lens .l1{color:var(--gold);font-size:20px} .lens .l2{color:#eaf2ff;font-size:24px;margin-top:10px}
+  .lens .l3{color:var(--cyan);font-size:17px;margin-top:12px}
+  .state{font-family:Consolas,monospace;font-size:14px;line-height:2.0;color:#c7d7ec}
+  .state b{color:var(--gold);font-weight:600}
+  code{font-family:Consolas,monospace;background:#0a1625;border:1px solid var(--line);
+    border-radius:6px;padding:2px 7px;color:#bfe9ff;font-size:14px}
+  .big{font-size:64px;font-weight:800;color:var(--cyan);line-height:1}
+  .bar{height:5px;background:#1b2c43;border-radius:9px;overflow:hidden;margin-top:12px}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));border-radius:9px}
+  .note{border-left:3px solid var(--gold);background:#1c1a10;padding:10px 14px;border-radius:0 8px 8px 0;
+    font-size:15px;color:#e7d7ad;margin-top:14px}
+  .phase-badge{font-size:13px;color:#0a1523;background:var(--gold);border-radius:999px;
+    padding:5px 14px;font-weight:800;letter-spacing:.08em;display:inline-block;margin-bottom:6px}
+  .check{font-size:15px;color:#cddcf0;line-height:1.65}
+  .check span{color:var(--green);font-weight:800;margin-right:6px}
+  .small{font-size:13px;color:var(--muted)}
+  .timeline{display:flex;gap:8px;margin-top:22px}
+  .tl{flex:1;text-align:center;position:relative}
+  .tl .dot{width:42px;height:42px;border-radius:50%;background:#123b46;border:2px solid var(--cyan);
+    color:var(--cyan);font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+  .tl .tt{font-size:13px;color:#c7d7ec;line-height:1.3}
+  .tl:after{content:"";position:absolute;top:20px;left:50%;width:100%;height:2px;background:var(--line);z-index:-1}
+  .tl:last-child:after{display:none}
+</style>
+<script>
+  var N=14, cur=1;
+  function showSlide(n){
+    cur=Math.max(1,Math.min(N,n));
+    document.querySelectorAll('.slide').forEach(function(s){s.classList.remove('active')});
+    var s=document.getElementById('slide-'+cur); if(s) s.classList.add('active');
+    document.getElementById('counter').textContent=String(cur).padStart(2,'0')+' / '+String(N).padStart(2,'0');
+    document.title='Glance Pay — Report ('+cur+'/'+N+')';
+    return cur;
+  }
+  function slideCount(){return N}
+  window.showSlide=showSlide; window.slideCount=slideCount;
+  document.addEventListener('DOMContentLoaded',function(){
+    var m=location.hash.match(/slide-(\d+)/); showSlide(m?+m[1]:1);
+    document.addEventListener('keydown',function(e){
+      if(e.key==='ArrowRight') showSlide(cur+1);
+      if(e.key==='ArrowLeft') showSlide(cur-1);
+    });
+  });
+</script>
+</head>
+<body>
+
+<!-- 1 — TITLE -->
+<section class="slide active" id="slide-1">
+  <div class="kicker">Even Realities G2 · RupeeRail · Testnet</div>
+  <h1>Glance&nbsp;Pay<br/><span class="accent">Completion Report</span></h1>
+  <div class="rule"></div>
+  <p class="lead">Hands-free stablecoin → UPI payments. Turn “where I am + what I said” into a signed payment the merchant receives in rupees — with no camera and no speaker on the glasses.</p>
+  <div class="grid g4" style="margin-top:26px">
+    <div class="card slim"><div class="big">7</div><div class="small">planned delivery phases</div></div>
+    <div class="card slim"><div class="big">6</div><div class="small">user-facing lens states</div></div>
+    <div class="card slim"><div class="big">1</div><div class="small">payment rail: RupeeRail</div></div>
+    <div class="card slim"><div class="big">0</div><div class="small">mainnet funds used</div></div>
+  </div>
+  <div class="note">Scope: this report consolidates the attached 7-phase plan, its decisions and acceptance criteria into a completion deliverable. It is a plan/status report — individual phase checkpoints are produced as the phases are executed.</div>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">01 / 14</span><span>Nov 2026</span></div>
+</section>
+
+<!-- 2 — IDEA / FLOW -->
+<section class="slide" id="slide-2">
+  <div class="kicker">The product</div>
+  <h2>One sentence. One payment.</h2>
+  <p class="lead">RupeeRail needs a UPI QR string. Glasses have no camera. Glance Pay is the bridge: location + voice → merchant QR payload → existing quote / sign / pay flow.</p>
+  <div class="flow">
+    <div class="step"><div class="k">01 · VOICE</div><div class="t">“Pay twelve fifty” into the G2 mic</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="k">02 · RESOLVE</div><div class="t">Phone: GPS + seeded registry + voice hint → merchant UPI URI</div></div>
+    <div class="step"><div class="k">03 · LENS</div><div class="t">“Café X · ₹12.50 (≈ 0.15 USDC)”</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="k">04 · CONFIRM</div><div class="t">Tap / ring — explicit confirmation, never auto-pay</div></div>
+    <div class="step"><div class="k">05 · RAIL</div><div class="t">RupeeRail quote → sign → paymaster → UPI payout</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="k">06 · RESULT</div><div class="t">Lens: Paid / Pending / Failed</div></div>
+  </div>
+  <div class="grid g3" style="margin-top:24px">
+    <div class="card slim"><h3>Hardware truth</h3><p>Text lens, mic, touch/ring input. No camera. No speaker. Apps run on the paired phone.</p></div>
+    <div class="card slim"><h3>Safety truth</h3><p>Dedicated low-balance session wallet, capped vault allowance, daily limit, explicit confirm.</p></div>
+    <div class="card slim"><h3>Reuse truth</h3><p>No new protocol. RupeeRail contracts and payout rail stay untouched.</p></div>
+  </div>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">02 / 14</span><span>The product</span></div>
+</section>
+
+<!-- 3 — ARCHITECTURE -->
+<section class="slide" id="slide-3">
+  <div class="kicker">System shape</div>
+  <h2>Architecture: a thin, safe layer on top of RupeeRail</h2>
+  <div class="flow" style="margin-top:18px">
+    <div class="step" style="border-top-color:var(--gold)"><div class="k gold">G2 GLASSES</div><div class="t">Text in lens<br/>Mic capture<br/>Tap / ring events</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="k">PHONE · apps/glance-pay/</div><div class="t">State machine<br/>Voice → amount parser<br/>Merchant resolver<br/>Session wallet signer</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="k">RUPeERAIL · api-py + web</div><div class="t">Signed quote<br/>EIP-712 intent + permit<br/>Paymaster submission<br/>Status / dispute</div></div>
+    <div class="arrow">→</div>
+    <div class="step" style="border-top-color:var(--green)"><div class="k green">UPI MERCHANT</div><div class="t">ScanPayVault escrow<br/>→ payout rail<br/>→ rupees in merchant account</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:22px">
+    <div class="card"><h3>Fixed constraints</h3><ul>
+      <li><b>Do not rebuild RupeeRail</b> — quote/sign/pay/refund already exist.</li>
+      <li><b>Do not modify <code>contracts/</code></b> — Arc Studio hashes are pinned.</li>
+      <li><b>Avoid <code>services/api-py</code></b> — any change must be minimal, additive, logged.</li>
+      <li>New code only in <code>apps/glance-pay/</code>; docs in <code>docs/glance-pay/</code>.</li>
+    </ul></div>
+    <div class="card"><h3>Operating rules</h3><ul>
+      <li><b>Testnet only</b> — Arc testnet USDC or Whitechain Sepolia USDT.</li>
+      <li><b>Test-first where it matters</b> — parser, state machine, ranking, idempotency.</li>
+      <li><b>Small <code>glance:</code> commits</b>, one checkpoint per phase.</li>
+      <li><b>No secrets</b> — <code>.env</code> + <code>.env.example</code>; location stays on-device.</li>
+    </ul></div>
+  </div>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">03 / 14</span><span>Architecture</span></div>
+</section>
+
+<!-- 4 — PLAN -->
+<section class="slide" id="slide-4">
+  <div class="kicker">Delivery plan</div>
+  <h2>Seven phases, one checkpoint each</h2>
+  <p class="lead">Every phase has explicit acceptance checks. On pass: write <code>CHECKPOINT-N.md</code>, commit <code>glance: checkpoint N complete</code>, tag <code>glance-checkpoint-N</code>, stop and report.</p>
+  <div class="timeline">
+    <div class="tl"><div class="dot">1</div><div class="tt">Environment<br/>setup</div></div>
+    <div class="tl"><div class="dot">2</div><div class="tt">Trace payment<br/>flow</div></div>
+    <div class="tl"><div class="dot">3</div><div class="tt">Glasses UI +<br/>state machine</div></div>
+    <div class="tl"><div class="dot">4</div><div class="tt">Voice<br/>→ amount</div></div>
+    <div class="tl"><div class="dot">5</div><div class="tt">Merchant<br/>resolution</div></div>
+    <div class="tl"><div class="dot">6</div><div class="tt">Real payments<br/>+ safety</div></div>
+    <div class="tl"><div class="dot">7</div><div class="tt">Demo hardening<br/>+ polish</div></div>
+  </div>
+  <div class="grid g3" style="margin-top:34px">
+    <div class="card slim"><span class="phase-badge">FOUNDATION</span><p>Phases 1–2 prove the toolchain, the testnet wallet and the exact RupeeRail calls.</p></div>
+    <div class="card slim"><span class="phase-badge">EXPERIENCE</span><p>Phases 3–5 build the lens UX, the voice parser and the location-based merchant pick.</p></div>
+    <div class="card slim"><span class="phase-badge">DELIVERY</span><p>Phases 6–7 wire real testnet money with safeguards, then harden the 90-second demo.</p></div>
+  </div>
+  <div class="note">Phase order is deliberate: nothing signs a payment until the flow is traced, the UI is testable in mock mode, and merchant choice is validated.</div>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">04 / 14</span><span>Delivery plan</span></div>
+</section>
+
+<!-- 5 — PHASE 1 -->
+<section class="slide" id="slide-5">
+  <div class="phase-badge">CHECKPOINT 1</div>
+  <h2>Phase 1 — Environment setup</h2>
+  <p class="lead">Everything runs locally; RupeeRail works on testnet; “hello world” renders on the G2 or its simulator. No feature code.</p>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>Work items</h3><ul>
+      <li>Fork/clone RupeeRail, branch <code>glance-pay</code>, init submodules recursively.</li>
+      <li>Read README, AGENTS.md, CLAUDE.md, docs; summarize in <code>NOTES.md</code>.</li>
+      <li>Install Foundry, <code>uv</code>, Node, git; verify Node version for <code>apps/web</code>.</li>
+      <li>Contracts sanity: <code>forge test</code> (read-only, no contract edits).</li>
+      <li>Backend: <code>.env</code> from example; uvicorn on :8788; confirm <code>/docs</code>; research the payout rail and mock/sandbox option.</li>
+      <li>Web app: <code>npm install &amp;&amp; npm run dev</code>; confirm it loads.</li>
+      <li>Fund a throwaway dev wallet; document chain + faucets.</li>
+      <li>Research G2 SDK, rendering limits, input events, mic access, simulator → <code>G2_SDK_NOTES.md</code>.</li>
+      <li>Scaffold <code>apps/glance-pay/</code>; show “Glance Pay” on lens; log a tap/ring event.</li>
+    </ul></div>
+    <div class="card"><h3>Acceptance checks</h3><p class="check"><span>✔</span> <code>forge test</code> passes<br/>
+      <span>✔</span> Backend starts and responds locally<br/>
+      <span>✔</span> Web app loads locally<br/>
+      <span>✔</span> Dev wallet funded; chain choice documented<br/>
+      <span>✔</span> <code>G2_SDK_NOTES.md</code> answers every research question<br/>
+      <span>✔</span> Hello-world lens text + input event logged<br/>
+      <span>✔</span> <code>NOTES.md</code> lists every reproduction command</p>
+      <h3 style="margin-top:18px">Answers due at this checkpoint</h3>
+      <p class="small">G2 SDK &amp; simulator · mic/transcription exposure · mock payout rail · chain + faucets · secure key storage · vault caps.</p>
+    </div>
+  </div>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">05 / 14</span><span>Phase 1</span></div>
+</section>
+
+<!-- 6 — PHASE 2 -->
+<section class="slide" id="slide-6">
+  <div class="phase-badge">CHECKPOINT 2</div>
+  <h2>Phase 2 — Trace RupeeRail’s payment flow</h2>
+  <p class="lead">Understand and prove the exact calls Glance Pay must make. No glasses work in this phase.</p>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>Work items</h3><ul>
+      <li>Complete one full testnet payment to a sample UPI QR in the web app; watch <code>LOCKED → COMPLETED → RELEASED</code>.</li>
+      <li>Write <code>RUPEERAIL_API.md</code>: endpoints for quote, signed intent, status, health/limits; exact request/response shapes.</li>
+      <li>Document the EIP-712 domain and types, the permit step (EIP-2612 vs allowance), and the salted commitment to the QR string.</li>
+      <li>Record quote expiry, per-payment and daily limits, rate limits, and the frontend signing library.</li>
+      <li>Build <code>apps/glance-pay/scripts/pay-cli.ts</code>: <code>--qr &lt;upi&gt; --amount &lt;inr&gt;</code> → quote → sign → submit → poll → print final state.</li>
+      <li>Observe: expired quote, insufficient balance, invalid QR, payout failure/refund.</li>
+    </ul></div>
+    <div class="card"><h3>Acceptance checks</h3><p class="check"><span>✔</span> API doc precise enough to reimplement the calls<br/>
+      <span>✔</span> <code>pay-cli</code> completes a real testnet payment headlessly<br/>
+      <span>✔</span> Four failure behaviours observed and written down</p>
+      <div class="lens" style="margin-top:18px">
+        <div class="l1">$ pay-cli --qr upi://pay?pa=… --amount 12.50</div>
+        <div class="l2">quote → sign → submit → poll</div>
+        <div class="l3">FINAL STATE: RELEASED ✓</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">06 / 14</span><span>Phase 2</span></div>
+</section>
+
+<!-- 7 — PHASE 3 -->
+<section class="slide" id="slide-7">
+  <div class="phase-badge">CHECKPOINT 3</div>
+  <h2>Phase 3 — Lens UI &amp; state machine</h2>
+  <p class="lead">The entire user experience works on the lens with fake data. The lens renders from state only — one source of truth.</p>
+  <div class="grid g2" style="margin-top:10px">
+    <div class="card"><h3>State machine</h3>
+      <div class="state"><b>IDLE</b> → LISTENING → AMOUNT_HEARD → RESOLVING<br/>
+      &nbsp;&nbsp;→ PICK_MERCHANT → <b>CONFIRM</b> → SIGNING → PENDING<br/>
+      &nbsp;&nbsp;→ <span class="green">SUCCESS</span> | <span class="red">FAILED</span> | CANCELLED | TIMEOUT<br/><br/>
+      start gesture · tap/ring confirm · distinct cancel gesture · auto-timeout to IDLE</div>
+      <h3 style="margin-top:12px">Screens</h3>
+      <p><b>CONFIRM</b>: amount (INR + token), merchant, countdown — together on one screen. <b>PICK_MERCHANT</b>: up to 3 candidates, cursor moved by ring/swipe.</p>
+    </div>
+    <div class="card"><h3>Lens preview · CONFIRM</h3>
+      <div class="lens"><div class="l1">Café X · Blue Tokai</div>
+        <div class="l2">₹12.50 ≈ 0.15 USDC</div>
+        <div class="l3">TAP to pay · 00:08 · RING to cancel</div></div>
+      <h3 style="margin-top:16px">Work items &amp; checks</h3>
+      <ul>
+        <li><code>MOCK=1</code>: fake merchants, quote, results (including a failure), no network.</li>
+        <li>Phone-side debug screen: current state + manual event triggers.</li>
+      </ul>
+      <p class="check"><span>✔</span> Happy, cancel, timeout, failure paths on lens<br/><span>✔</span> Transitions unit-tested; illegal transitions rejected<br/><span>✔</span> No screen overflows display limits</p>
+    </div>
+  </div>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">07 / 14</span><span>Phase 3</span></div>
+</section>
+
+<!-- 8 — PHASE 4 -->
+<section class="slide" id="slide-8">
+  <div class="phase-badge">CHECKPOINT 4</div>
+  <h2>Phase 4 — Voice to amount</h2>
+  <p class="lead">“Pay 12.50” becomes a validated amount plus an optional merchant hint. A pure parser; no side effects.</p>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>Accepted phrasing → parsed result</h3>
+      <p><code>"pay 12.50"</code> → <span class="green">{ amount: 12.50 }</span></p>
+      <p><code>"pay twelve fifty"</code> → <span class="green">{ amount: 12.50 }</span></p>
+      <p><code>"pay 200 to Blue Tokai"</code> → <span class="green">{ amount: 200, merchantHint: "Blue Tokai" }</span></p>
+      <p><code>"pay 50 rupees"</code> → <span class="green">{ amount: 50, currency: "INR" }</span></p>
+      <h3 style="margin-top:16px">Rejected</h3>
+      <p>No amount · negative · zero · absurdly large · ambiguous phrasing.</p>
+    </div>
+    <div class="card"><h3>Work items</h3><ul>
+      <li>Get audio or transcription from G2 to phone using the Phase 1 finding; document the STT choice and tradeoffs.</li>
+      <li>Pure, well-tested parser: text → <code>{ amount, currency?, merchantHint? }</code>.</li>
+      <li>Echo parsed amount on the lens before moving on — catch mishearing early.</li>
+      <li>Configurable per-payment cap at parse time, default <b>₹500</b> for the demo.</li>
+    </ul>
+    <h3 style="margin-top:14px">Acceptance</h3>
+    <p class="check"><span>✔</span> Tests pass, incl. Indian-English numbers &amp; decimal edges<br/><span>✔</span> Spoken amount appears on lens<br/><span>✔</span> Over-limit/invalid refused with clear lens message</p>
+  </div></div>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">08 / 14</span><span>Phase 4</span></div>
+</section>
+
+<!-- 9 — PHASE 5 -->
+<section class="slide" id="slide-9">
+  <div class="phase-badge">CHECKPOINT 5</div>
+  <h2>Phase 5 — Merchant resolution</h2>
+  <p class="lead">The core novelty: location + voice hint → a merchant with a real UPI QR payload.</p>
+  <div class="grid g3" style="margin-top:14px">
+    <div class="card"><h3>Registry</h3><ul>
+      <li><code>data/merchants.json</code>, validated loader.</li>
+      <li>Fields: id, name, address, lat, lng, <b>upiUri</b>, category, aliases[].</li>
+      <li>5–10 seeded entries, including a close pair ≤ 30 m apart and one real test merchant for the live demo.</li>
+      <li>Validate <code>upiUri</code> format at load time.</li>
+    </ul></div>
+    <div class="card"><h3>Ranking &amp; disambiguation</h3><ul>
+      <li>Distance weighted by reported GPS accuracy; fuzzy name match; alias match; optional recency.</li>
+      <li>Return top 3 with scores.</li>
+      <li><b>Strong single match → still CONFIRM. Never auto-pay.</b></li>
+      <li>Otherwise → PICK_MERCHANT. Nothing in range → “No merchant nearby”, exit.</li>
+    </ul></div>
+    <div class="card"><h3>Integrity &amp; privacy</h3><ul>
+      <li>Confirm screen shows registry name <b>and shortened UPI handle</b> to expose wrong/spoofed entries.</li>
+      <li>Handle permission denied, low accuracy, stale GPS fixes.</li>
+      <li>Location and payment history stay <b>on-device</b>; no analytics, no raw-location upload.</li>
+      <li>Wi-Fi/BLE ranking = stretch; otherwise future work.</li>
+    </ul></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>Acceptance</h3><p class="check"><span>✔</span> Unit tests: close-pair disambiguation · name-hint override · no-match · poor-GPS accuracy
+    &nbsp; <span>✔</span> Scripted fake-GPS simulation yields correct candidates &nbsp; <span>✔</span> Sensible pick list on device/simulator</p></div>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">09 / 14</span><span>Phase 5</span></div>
+</section>
+
+<!-- 10 — PHASE 6 -->
+<section class="slide" id="slide-10">
+  <div class="phase-badge">CHECKPOINT 6</div>
+  <h2>Phase 6 — Real payments &amp; safety</h2>
+  <p class="lead">Confirm on the lens → a real testnet payment through RupeeRail, with safeguards that never leave the user unsure whether money moved.</p>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><h3>Payment path</h3><ul>
+      <li><code>PaymentService</code> interface (quote → sign → submit → poll); mock and real implementations swappable.</li>
+      <li>Dedicated low-balance <b>session wallet</b>; best available secure storage; capped vault allowance verified on-chain; remaining budget on debug screen.</li>
+      <li>Quote must be <b>fresh at confirm</b>; expiry → re-quote + re-confirm, never sign stale silently.</li>
+      <li>Confirmation single-use and tied to one {merchant, amount, quote} — double tap cannot double-submit.</li>
+      <li>Extra friction above a threshold; client-side daily limit in addition to RupeeRail’s.</li>
+    </ul></div>
+    <div class="card"><h3>Status, failures, audit</h3>
+      <div class="lens"><div class="l1">Paying…</div><div class="l2">Paid ₹12.50 to Café X</div>
+        <div class="l3">Failed, refunded · Pending, check phone</div></div>
+      <ul style="margin-top:12px">
+        <li>Dispute window exposed on phone; “dispute last payment” reuses the existing flow.</li>
+        <li>Network loss, backend down, quote rejected, payout failed → clear lens message + safe terminal state.</li>
+        <li>Local audit log: timestamp, merchant id, amount, state, tx hash — <b>no secrets</b>.</li>
+      </ul>
+      <p class="check" style="margin-top:10px"><span>✔</span> Real testnet payment reaches COMPLETED/RELEASED &nbsp; <span>✔</span> Double-tap tested &nbsp; <span>✔</span> Expired-quote re-confirm</p>
+    </div>
+  </div>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">10 / 14</span><span>Phase 6</span></div>
+</section>
+
+<!-- 11 — PHASE 7 -->
+<section class="slide" id="slide-11">
+  <div class="phase-badge">CHECKPOINT 7 · FINAL</div>
+  <h2>Phase 7 — Demo hardening &amp; polish</h2>
+  <p class="lead">A demo that survives bad Wi-Fi and a nervous presenter.</p>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>Deliverables</h3><ul>
+      <li><b>Mock/real toggle</b> flippable mid-demo + fallback video script if hardware fails.</li>
+      <li><code>DEMO.md</code>: ~90 s story — a traveler with only stablecoins pays for chai in seconds, including one deliberate wrong-merchant → cancel to show the safety design.</li>
+      <li>Reset script restoring seed data and balances to a known state.</li>
+      <li><code>apps/glance-pay/README.md</code>: architecture diagram, setup, env vars, how RupeeRail is reused, honest limitations.</li>
+    </ul></div>
+    <div class="card"><h3>Limitations stated openly</h3><ul>
+      <li>Testnet only; single corridor (USDC/USDT → UPI).</li>
+      <li>KYC/regulatory handled by RupeeRail’s payout partner in production.</li>
+      <li>GPS + registry matching is a prototype; production needs a merchant-displayed BLE/NFC handshake.</li>
+      <li>Final pass: remove dead code, complete <code>.env.example</code>, <code>git log -p</code> secret scan, release tag.</li>
+    </ul>
+    <h3 style="margin-top:12px">Acceptance</h3>
+    <p class="check"><span>✔</span> Fresh clone set up from README alone &nbsp; <span>✔</span> Demo runs 3× in both modes &nbsp; <span>✔</span> No secrets in history</p>
+  </div>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">11 / 14</span><span>Phase 7</span></div>
+</section>
+
+<!-- 12 — DECISIONS -->
+<section class="slide" id="slide-12">
+  <div class="kicker">Locked decisions</div>
+  <h2>Safety and scope are non-negotiable</h2>
+  <div class="grid g3" style="margin-top:16px">
+    <div class="card"><h3>01 · Rail</h3><p>RupeeRail only. p2p.me is out. Reuse quote/sign/pay/dispute; do not rebuild escrow.</p></div>
+    <div class="card"><h3>02 · Contracts</h3><p><code>contracts/</code> untouched — unedited Arc Studio output with pinned manifest hashes.</p></div>
+    <div class="card"><h3>03 · Backend</h3><p><code>services/api-py</code> avoided; changes only if unavoidable, minimal, additive and logged.</p></div>
+    <div class="card"><h3>04 · Network</h3><p><b>Testnet only.</b> No mainnet funds at any point in development or demo.</p></div>
+    <div class="card"><h3>05 · Keys</h3><p>Dedicated low-balance session wallet with capped on-chain allowance. Never the main wallet; never committed keys.</p></div>
+    <div class="card"><h3>06 · Confirmation</h3><p>Never auto-pay. Explicit tap/ring confirm, fresh quote, single-use intent, adjustable limits.</p></div>
+    <div class="card"><h3>07 · Privacy</h3><p>Location and payment history stay on-device; no analytics, no raw-location upload.</p></div>
+    <div class="card"><h3>08 · Code home</h3><p>All new code in <code>apps/glance-pay/</code>; all documentation in <code>docs/glance-pay/</code>.</p></div>
+    <div class="card"><h3>09 · Delivery</h3><p>Small <code>glance:</code> commits; one phase per checkpoint; stop and report at each gate.</p></div>
+  </div>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">12 / 14</span><span>Decisions</span></div>
+</section>
+
+<!-- 13 — OPEN QUESTIONS -->
+<section class="slide" id="slide-13">
+  <div class="kicker">Phase 1 research gate</div>
+  <h2>Open questions &amp; risks</h2>
+  <p class="lead">The plan deliberately refuses to invent APIs. These are answered from real docs/code and recorded in <code>CHECKPOINT-1.md</code> before any feature work.</p>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><h3>Questions to answer</h3><ul>
+      <li>Which G2 SDK/runtime and language? Is there a simulator?</li>
+      <li>Raw mic audio, SDK transcription, or neither? (Shapes Phase 4.)</li>
+      <li>Mock payout rail in <code>services/api-py</code>, or must we stub one?</li>
+      <li>Which chain do we demo on, and where are the faucets?</li>
+      <li>Where can the session key be stored securely on the phone runtime?</li>
+      <li>Do the vault’s per-payment/daily caps constrain demo amounts?</li>
+    </ul></div>
+    <div class="card"><h3>Risk register</h3>
+      <p><span class="red">●</span> <b>G2 SDK names unverified</b> — research from official docs; if unresolvable, stop and ask.</p>
+      <p><span class="gold">●</span> <b>Payout credentials</b> — the demo must not need real Razorpay keys; find the sandbox/mock path.</p>
+      <p><span class="gold">●</span> <b>GPS accuracy</b> — close merchants need accuracy-aware ranking; no guessing.</p>
+      <p><span class="green">●</span> <b>Mitigation</b> — mock mode from Phase 3 makes the whole UX demoable with no network or hardware.</p>
+      <div class="note">Rule: if blocked after a short attempt, stop and ask — never silently work around a safety item.</div>
+    </div>
+  </div>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">13 / 14</span><span>Open questions</span></div>
+</section>
+
+<!-- 14 — CLOSE -->
+<section class="slide" id="slide-14">
+  <div class="kicker">Summary</div>
+  <h1>Plan complete.<br/><span class="accent">Ready to build.</span></h1>
+  <div class="rule"></div>
+  <p class="lead">Seven phases specified, each with tasks, acceptance checks and a checkpoint gate. Decisions locked, safety items explicit, and the demo story defined end to end.</p>
+  <div class="grid g3" style="margin-top:24px">
+    <div class="card"><div class="big">7<span class="gold">/7</span></div><h3 style="margin-top:8px">phases specified</h3><p>Environment → trace → lens UX → voice → merchants → real payments → demo.</p></div>
+    <div class="card"><div class="big">6</div><h3 style="margin-top:8px">checkpoint questions</h3><p>To be answered from real docs and code in Phase 1, not guessed.</p></div>
+    <div class="card"><div class="big">90<span class="gold">s</span></div><h3 style="margin-top:8px">demo story</h3><p>Traveler, chai, stablecoins — with a deliberate cancel to show safety.</p></div>
+  </div>
+  <div class="bar" style="margin-top:28px"><i style="width:100%"></i></div>
+  <p class="small" style="margin-top:10px">Next action: execute Phase 1 — environment setup — and write <code>CHECKPOINT-1.md</code>.</p>
+  <div class="footer"><span>glance-pay / report</span><span id="counter">14 / 14</span><span>End of report</span></div>
+</section>
+
+</body>
+</html>
