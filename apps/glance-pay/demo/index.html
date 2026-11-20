@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Glance Pay — Interactive Product Demo</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header>
+  <div>
+    <div class="kicker">G2 GLASSES + PAIRED PHONE · MOCK MODE</div>
+    <h1>Glance Pay <span>product demo</span></h1>
+  </div>
+  <div class="header-right">
+    <div class="role-switch" aria-label="Demo role">
+      <button id="role-user" class="role active">User</button>
+      <button id="role-admin" class="role">Admin</button>
+    </div>
+    <div class="mode">MOCK=1 <span class="dot"></span> no network · no funds</div>
+  </div>
+</header>
+
+<main>
+  <section class="lens-panel">
+    <div class="panel-title">LENS VIEW <span id="lens-state">IDLE</span></div>
+    <div class="glasses">
+      <div class="lens-text">
+        <div id="l1" class="l1">Glance Pay</div>
+        <div id="l2" class="l2">Ready · tap to start</div>
+        <div id="l3" class="l3"></div>
+      </div>
+    </div>
+    <p class="hint">Text only · max 3 lines · no camera, no speaker</p>
+  </section>
+
+  <section class="phone-panel">
+    <div class="panel-title">PAIRED PHONE · <span id="role-label">USER</span> VIEW <span id="phone-state">IDLE</span></div>
+
+    <!-- USER ROLE: connect wallet + past payments only -->
+    <div id="user-tools">
+      <div class="detail wide">
+        <h3>Session wallet</h3>
+        <p id="wallet-status">Not connected. Connect a low-balance demo wallet to view your payments.</p>
+        <button id="btn-connect-wallet" class="primary">Connect wallet</button>
+      </div>
+      <div class="detail wide" style="margin-top:12px">
+        <h3>Your past payments</h3>
+        <div id="payments-list" class="list">Connect your wallet to see payment history.</div>
+        <p class="small">History is stored locally on this device. No analytics, no uploads.</p>
+      </div>
+      <p class="small" style="margin-top:12px">Merchant onboarding is admin-only. Switch role to <b>Admin</b> to onboard a merchant or drive the payment simulation.</p>
+    </div>
+
+    <!-- ADMIN ROLE: onboard merchants + drive the demo -->
+    <div id="admin-tools" hidden>
+      <div class="detail wide">
+        <h3>Merchant onboarding (admin only)</h3>
+        <form id="onboard-form" class="onboard-grid">
+          <label>Name<input id="m-name" placeholder="Café X" /></label>
+          <label>Address<input id="m-address" placeholder="12 Church St" /></label>
+          <label>Latitude<input id="m-lat" placeholder="12.9716" /></label>
+          <label>Longitude<input id="m-lng" placeholder="77.5946" /></label>
+          <label class="span2">UPI URI<input id="m-upi" placeholder="upi://pay?pa=merchant@upi&cu=INR" /></label>
+          <label>Category<input id="m-category" value="cafe" /></label>
+          <label>Aliases (comma separated)<input id="m-aliases" placeholder="cafe x, coffee" /></label>
+          <button type="submit" class="primary span2">Add merchant to registry</button>
+        </form>
+        <p id="onboard-status" class="small"></p>
+        <div id="onboarded-list" class="list"></div>
+      </div>
+
+      <div class="row" style="margin-top:14px">
+        <label>Voice phrase
+          <input id="voice-input" value="pay twelve fifty" />
+        </label>
+        <button id="btn-speak" class="primary">Speak (mic in)</button>
+      </div>
+      <div class="row">
+        <label>GPS position
+          <select id="gps-select">
+            <option value="pair">At chai stall — close merchant pair</option>
+            <option value="single">Near Chai Point — single match</option>
+            <option value="far">Nowhere nearby — no merchant</option>
+          </select>
+        </label>
+        <label>GPS accuracy <span id="accuracy-val">20 m</span>
+          <input id="accuracy" type="range" min="5" max="120" value="20" />
+        </label>
+      </div>
+      <div class="row buttons">
+        <button id="btn-start">Start gesture</button>
+        <button id="btn-confirm" class="primary">Tap / ring confirm</button>
+        <button id="btn-next">Ring: next candidate</button>
+        <button id="btn-cancel">Cancel gesture</button>
+        <button id="btn-timeout">Force timeout</button>
+        <button id="btn-reset">Reset</button>
+      </div>
+      <div class="row toggles">
+        <label><input id="fail-toggle" type="checkbox" /> Force payout failure (refund)</label>
+        <label><input id="wrong-hint" type="checkbox" /> Wrong merchant hint → cancel path</label>
+      </div>
+
+      <div class="details">
+        <div class="detail">
+          <h3>Payment context</h3>
+          <p id="ctx">Awaiting start gesture.</p>
+          <p class="small" id="quote-info">Quote: —</p>
+        </div>
+        <div class="detail">
+          <h3>Merchant candidates</h3>
+          <div id="merchant-list" class="list">—</div>
+        </div>
+        <div class="detail">
+          <h3>Session budget &amp; audit</h3>
+          <p class="small" id="budget">Remaining: ₹500.00 / ₹500.00</p>
+          <div id="audit-list" class="list log">No attempts yet.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>Glance Pay · role-based demo · state-machine-driven lens UX · RupeeRail-compatible mock flow · testnet-only design</footer>
+<script type="module" src="src/app.js"></script>
+</body>
+</html>
