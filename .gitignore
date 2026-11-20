@@ -1,0 +1,18 @@
+# Generated media (rebuild with the scripts in report/tools/)
+*.mp4
+*.mp3
+screenshots/
+report/narration/
+report/product_narration/
+report/product_segments/
+report/segments/
+
+# Tooling / local state
+.swarm/
+.playwright-mcp/
+node_modules/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
