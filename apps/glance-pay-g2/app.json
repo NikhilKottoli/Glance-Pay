@@ -1,0 +1,17 @@
+{
+  "package_id": "com.glancepay.g2",
+  "edition": "202601",
+  "name": "Glance Pay",
+  "version": "1.0.0",
+  "min_sdk_version": "0.0.16",
+  "entrypoint": "index.html",
+  "permissions": [
+    {
+      "name": "network",
+      "domains": ["127.0.0.1", "localhost"]
+    },
+    { "name": "g2-microphone" },
+    { "name": "location" }
+  ],
+  "supported_languages": ["en"]
+}
