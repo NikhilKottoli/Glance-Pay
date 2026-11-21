@@ -1,0 +1,46 @@
+{
+  "voice": "en-US-GuyNeural",
+  "rate": "-8%",
+  "slides": [
+    {
+      "image": "01-home.png",
+      "audio": "01-home.mp3",
+      "text": "This is Glance Pay: one real testnet payment, from a browser wallet signature to a receipt email. The app runs on Ethereum Sepolia. In this walkthrough we show both roles: admin, who onboards merchants, and the user, who connects a wallet and pays."
+    },
+    {
+      "image": "02-admin.png",
+      "audio": "02-admin.mp3",
+      "text": "In the admin tab the operator adds a merchant. Name, address, coordinates and U P I handle are validated by the backend and stored in the registry. Every user immediately sees the updated list."
+    },
+    {
+      "image": "03-user.png",
+      "audio": "03-user.mp3",
+      "text": "In the pay tab, the user connects a browser wallet and chooses a merchant. Here the demo session wallet is funded with test E T H and test U S D C on Ethereum Sepolia, so the signature is real."
+    },
+    {
+      "image": "04-signing.png",
+      "audio": "04-signing.mp3",
+      "text": "The user signs an E R C twenty USDC transfer from the wallet. The lens preview follows each step: signing, then submitting."
+    },
+    {
+      "image": "05-signed.png",
+      "audio": "05-signed.mp3",
+      "text": "The transaction is broadcast and mined on Ethereum Sepolia. This is a real on-chain transfer of about point one five test USDC to the payout treasury. No mock payment path is involved."
+    },
+    {
+      "image": "06-verified.png",
+      "audio": "06-verified.mp3",
+      "text": "The backend fetches the transaction receipt, verifies the status, token contract, recipient and amount, then sends the receipt by email through Resend. The screen shows the explorer link and the email id."
+    },
+    {
+      "image": "07-history.png",
+      "audio": "07-history.mp3",
+      "text": "The payment now appears in the user's history with the transaction hash and receipt email id. The admin sees the same verified payment in the audit list."
+    },
+    {
+      "image": "08-end.png",
+      "audio": "08-end.mp3",
+      "text": "That is the full loop: connect, fund, sign on-chain, verify in the backend, email the receipt. Testnet only, no real money. We would love your feedback on the flow and the safety design. Thank you."
+    }
+  ]
+}

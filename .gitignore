@@ -28,5 +28,7 @@ report/tools/_locate_ffmpeg_tmp.py
 report/tools/locate_ffmpeg.py
 report/e2e_narration/
 report/e2e_segments/
+report/signing_narration/
+report/signing_segments/
 playwright-report/
 test-results/

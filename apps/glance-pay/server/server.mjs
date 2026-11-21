@@ -71,11 +71,11 @@ async function verifyOnChain(txHash, amountInr) {
   }
   if (!receipt) throw new Error("Transaction not mined yet — try again in a moment");
   if (receipt.status !== "0x1") throw new Error("Transaction reverted on-chain");
-  if ((receipt.to || "").toLowerCase() !== CHAIN.usdc) throw new Error("Transaction was not a USDC transfer");
+  if ((receipt.to || "").toLowerCase() !== CHAIN.usdc.toLowerCase()) throw new Error("Transaction was not a USDC transfer");
 
   const expected = amountUnits(amountInr);
   const transfer = (receipt.logs || []).find((l) =>
-    (l.address || "").toLowerCase() === CHAIN.usdc && l.topics?.[0] === TRANSFER_TOPIC && l.topics?.[2]);
+    (l.address || "").toLowerCase() === CHAIN.usdc.toLowerCase() && l.topics?.[0] === TRANSFER_TOPIC && l.topics?.[2]);
   if (!transfer) throw new Error("No USDC Transfer event found in the transaction");
   const to = "0x" + transfer.topics[2].slice(-40).toLowerCase();
   const from = "0x" + (transfer.topics[1] || "").slice(-40).toLowerCase();

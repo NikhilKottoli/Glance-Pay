@@ -1,5 +1,6 @@
 # Glance Pay — completion report deliverables
 
+- **Real signed payment demo (on-chain + receipt email; NEW):** `glance-pay-signed-payment.mp4` — 8 real UI screenshots of a signed Sepolia payment, from a browser wallet signature through a real on-chain USDC transfer, backend verification and a receipt email, chained with free AI voice narration; 1280x720, H.264 + AAC, ~2 min 1 s. Script: `tools/signing_narration.json` · Builder: `tools/build_signing_video.py` · Audio: `signing_narration/` (8 MP3s).
 - **e2e walkthrough (both roles, no wallet signature; NEW):** `glance-pay-e2e-walkthrough.mp4` — 10 real UI screenshots (admin + normal user flows) from `../screenshots/e2e/` chained with free AI voice narration; covers the full flow except the MetaMask wallet signature; 1280x720, H.264 + AAC, ~2 min 46 s. Script: `tools/e2e_narration.json` · Builder: `tools/build_e2e_video.py` · Audio: `e2e_narration/` (10 MP3s).
 - **Deployed web UI demo (self-contained, narrated):** `glance-pay-web-demo.mp4` — 11 screenshots of the NEW deployed web UI from `../screenshots/web/` chained with free AI voice narration; 1280x720, H.264 + AAC, ~3 min 2 s. Script: `tools/web_narration.json` · Builder: `tools/build_web_video.py` · Audio: `web_narration/` (11 MP3s).
 - **Feedback video (self-contained, narrated):** `glance-pay-feedback-demo.mp4` — 14 real UI/context screenshots from `../screenshots/feedback/` chained with free AI voice narration; 1280x720, H.264 + AAC, ~4 min 46 s. Script: `tools/feedback_narration.json` · Builder: `tools/build_feedback_video.py` · Audio: `feedback_narration/` (14 MP3s).
@@ -12,6 +13,12 @@
 - **Audio files:** `narration/` (14 MP3s)
 
 The voice is `edge-tts` `en-US-GuyNeural` — a free neural TTS service requiring no API key.
+
+To regenerate the real signed payment demo (except the screenshots):
+
+```bash
+python3 report/tools/build_signing_video.py
+```
 
 To regenerate the e2e walkthrough (except the screenshots):
 
