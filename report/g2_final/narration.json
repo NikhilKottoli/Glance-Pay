@@ -1,0 +1,46 @@
+{
+  "voice": "en-US-GuyNeural",
+  "rate": "-8%",
+  "slides": [
+    {
+      "image": "slides/slide-01.png",
+      "audio": "audio/01-idle.mp3",
+      "text": "Glance Pay for Even Realities G2. No camera, no speaker — text in the lens and a ring. Tap to begin."
+    },
+    {
+      "image": "slides/slide-02.png",
+      "audio": "audio/02-listening.mp3",
+      "text": "Say an amount. Raw microphone PCM goes through speech to text and a parser becomes twelve rupees fifty."
+    },
+    {
+      "image": "slides/slide-03.png",
+      "audio": "audio/03-pick.mp3",
+      "text": "Location and a seeded merchant registry pick the vendor. Scroll the ring to choose, then tap to confirm. No auto-pay."
+    },
+    {
+      "image": "slides/slide-04.png",
+      "audio": "audio/04-confirm.mp3",
+      "text": "Confirm shows merchant, rupees and U S D C on one glanceable line. One tap signs a fresh quote."
+    },
+    {
+      "image": "slides/slide-05.png",
+      "audio": "audio/05-pending.mp3",
+      "text": "Our backend signs a real test USDC transfer on Ethereum Sepolia and waits for the on-chain receipt."
+    },
+    {
+      "image": "slides/slide-06.png",
+      "audio": "audio/06-success.mp3",
+      "text": "The backend verifies the transaction and emails the receipt via Resend. Testnet only — no real money moved."
+    },
+    {
+      "image": "slides/slide-07.png",
+      "audio": "audio/07-receipt.mp3",
+      "text": "The phone shows the verified tx hash, block and receipt email id. Every payment is auditable end to end."
+    },
+    {
+      "image": "slides/slide-08.png",
+      "audio": "audio/08-end.mp3",
+      "text": "Glance Pay: hands-free payments on G2, real on-chain settlement. We would love your feedback. Thank you."
+    }
+  ]
+}

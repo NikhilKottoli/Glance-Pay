@@ -179,11 +179,7 @@ const USD_RATE = 83; // INR per USDC (approximate)
 const PCM_CHUNK_MS = 100;
 const LISTEN_DURATION_MS = 2500;
 
-const API_BASE = (typeof process !== "undefined" && process.env && process.env.VITE_API_BASE)
-  ? String(process.env.VITE_API_BASE)
-  : (typeof window !== "undefined" && window.location && window.location.origin)
-    ? window.location.origin
-    : "http://127.0.0.1:8787";
+const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) || "http://127.0.0.1:8787";
 
 const LENS_CONFIG = {
   line1: { containerID: 1, y: 10, h: 80 },
@@ -264,9 +260,9 @@ async function renderLens() {
     await bridge.rebuildPageContainer({
       containerTotalNum: 3,
       textObject: [
-        { containerID: 1, containerName: "line1", xPosition: 0, yPosition: LENS_CONFIG.line1.y, width: 576, height: LENS_CONFIG.line1.h, isEventCapture: 1, zOrderIndex: 1, textColor: 4, content: l1 },
-        { containerID: 2, containerName: "line2", xPosition: 0, yPosition: LENS_CONFIG.line2.y, width: 576, height: LENS_CONFIG.line2.h, isEventCapture: 0, zOrderIndex: 1, textColor: 4, content: l2 },
-        { containerID: 3, containerName: "line3", xPosition: 0, yPosition: LENS_CONFIG.line3.y, width: 576, height: LENS_CONFIG.line3.h, isEventCapture: 0, zOrderIndex: 1, textColor: 3, content: l3 },
+        { containerID: 1, containerName: "line1", xPosition: 0, yPosition: LENS_CONFIG.line1.y, width: 576, height: LENS_CONFIG.line1.h, isEventCapture: 1, zOrderIndex: 1, textColor: 0, content: l1 },
+        { containerID: 2, containerName: "line2", xPosition: 0, yPosition: LENS_CONFIG.line2.y, width: 576, height: LENS_CONFIG.line2.h, isEventCapture: 0, zOrderIndex: 2, textColor: 0, content: l2 },
+        { containerID: 3, containerName: "line3", xPosition: 0, yPosition: LENS_CONFIG.line3.y, width: 576, height: LENS_CONFIG.line3.h, isEventCapture: 0, zOrderIndex: 3, textColor: 0, content: l3 },
       ],
     });
   } catch (e) {
@@ -531,9 +527,9 @@ async function init() {
     await bridge.createStartUpPageContainer({
       containerTotalNum: 3,
       textObject: [
-        { containerID: 1, containerName: "line1", xPosition: 0, yPosition: LENS_CONFIG.line1.y, width: 576, height: LENS_CONFIG.line1.h, isEventCapture: 1, zOrderIndex: 1, textColor: 4, content: l1 },
-        { containerID: 2, containerName: "line2", xPosition: 0, yPosition: LENS_CONFIG.line2.y, width: 576, height: LENS_CONFIG.line2.h, isEventCapture: 0, zOrderIndex: 1, textColor: 4, content: l2 },
-        { containerID: 3, containerName: "line3", xPosition: 0, yPosition: LENS_CONFIG.line3.y, width: 576, height: LENS_CONFIG.line3.h, isEventCapture: 0, zOrderIndex: 1, textColor: 3, content: l3 },
+        { containerID: 1, containerName: "line1", xPosition: 0, yPosition: LENS_CONFIG.line1.y, width: 576, height: LENS_CONFIG.line1.h, isEventCapture: 1, zOrderIndex: 1, textColor: 0, content: l1 },
+        { containerID: 2, containerName: "line2", xPosition: 0, yPosition: LENS_CONFIG.line2.y, width: 576, height: LENS_CONFIG.line2.h, isEventCapture: 0, zOrderIndex: 2, textColor: 0, content: l2 },
+        { containerID: 3, containerName: "line3", xPosition: 0, yPosition: LENS_CONFIG.line3.y, width: 576, height: LENS_CONFIG.line3.h, isEventCapture: 0, zOrderIndex: 3, textColor: 0, content: l3 },
       ],
     });
 

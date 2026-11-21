@@ -1,0 +1,8 @@
+file '/home/azureuser/Glance-Pay/report/g2_final/segments/01-idle.mp4'
+file '/home/azureuser/Glance-Pay/report/g2_final/segments/02-listening.mp4'
+file '/home/azureuser/Glance-Pay/report/g2_final/segments/03-pick.mp4'
+file '/home/azureuser/Glance-Pay/report/g2_final/segments/04-confirm.mp4'
+file '/home/azureuser/Glance-Pay/report/g2_final/segments/05-pending.mp4'
+file '/home/azureuser/Glance-Pay/report/g2_final/segments/06-success.mp4'
+file '/home/azureuser/Glance-Pay/report/g2_final/segments/07-receipt.mp4'
+file '/home/azureuser/Glance-Pay/report/g2_final/segments/08-end.mp4'
