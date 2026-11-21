@@ -7,7 +7,7 @@ from urllib.request import Request, urlopen
 cfg = json.loads(Path("/root/.config/opencode/service.json").read_text())["env"]
 token, chat = cfg["BOT_TELEGRAM_TOKEN"], cfg["BOT_TELEGRAM_CHAT_ID"]
 text = ("Glance Pay — LIVE deployable demo\n"
-        "https://extends-rapidly-para-police.trycloudflare.com\n\n"
+        "https://gifts-tumor-repeat-checklist.trycloudflare.com\n\n"
         "User: connect wallet, choose merchant, pay → receipt email via Resend. "
         "Admin tab: onboard merchants and see all receipts. "
         "Testnet-style mock payout — no real money moves. "
