@@ -26,7 +26,7 @@ node apps/glance-pay/server/server.mjs
 ```
 
 Live link (Cloudflare quick tunnel, while the session is up):
-https://extends-rapidly-para-police.trycloudflare.com
+https://gifts-tumor-repeat-checklist.trycloudflare.com
 
 `report/` holds the completion report and video artifacts from earlier iterations;
 it is not part of the running app.
