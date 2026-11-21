@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Glance Pay — Testnet Payment Demo</title>
-<meta name="description" content="Testnet console for hands-free stablecoin payments on smart glasses: sign a USDC transfer on Base Sepolia, verify it on-chain and email the receipt." />
+<meta name="description" content="Testnet console for hands-free stablecoin payments on smart glasses: sign a USDC transfer on Ethereum Sepolia, verify it on-chain and email the receipt." />
 <meta name="theme-color" content="#f7f9f8" />
 <meta name="site-kind" content="software" />
 <meta name="page-type" content="software" />
@@ -35,13 +35,13 @@
     <a class="side__link is-active" href="#pay-panel"><span class="side__ico" aria-hidden="true">◈</span>Pay</a>
     <a class="side__link" href="#activity-panel"><span class="side__ico" aria-hidden="true">≡</span>Activity</a>
     <a class="side__link" href="#network-panel"><span class="side__ico" aria-hidden="true">⌁</span>Network</a>
-    <div class="side__foot"><b>Base Sepolia</b><br />chain 84532<br />No real funds</div>
+    <div class="side__foot"><b>Ethereum Sepolia</b><br />chain 11155111<br />No real funds</div>
   </aside>
 
   <main class="workspace">
     <div class="pagehead">
       <div><p class="eyebrow">Hands-free payments · G2 glasses</p><h1>Payment console</h1><p class="pagehead__sub">Sign a test USDC transfer. The backend verifies it on-chain and emails the receipt.</p></div>
-      <div class="pagehead__meta"><span>Test USDC · Base Sepolia</span><span id="session-time">Session active</span></div>
+      <div class="pagehead__meta"><span>Test USDC · Ethereum Sepolia</span><span id="session-time">Session active</span></div>
     </div>
 
     <div class="checklist" aria-label="Payment progress">
@@ -74,7 +74,7 @@
             <div class="field"><label for="usdc-amount">USDC to sign</label><input id="usdc-amount" value="≈ 0.15 USDC" readonly /></div>
           </div>
           <button id="pay" class="btn primary btn--wide" type="button">Sign transaction &amp; pay</button>
-          <div id="status" class="status" role="status">Connect a wallet with Base Sepolia test USDC to begin.</div>
+          <div id="status" class="status" role="status">Connect a wallet with Ethereum Sepolia test USDC to begin.</div>
           <div id="activity-panel" class="panel__section">
             <div class="section__head"><h3>Your payments</h3><span class="section__note">verified onchain</span></div>
             <div id="payments" class="list">No payments yet.</div>
@@ -117,8 +117,8 @@
 
         <section class="panel" id="network-panel" aria-labelledby="net-h">
           <div class="panel__head"><h2 id="net-h">Network</h2><span class="panel__tag">verified</span></div>
-          <dl class="kv"><dt>Chain</dt><dd>Base Sepolia · 84532</dd></dl>
-          <dl class="kv"><dt>USDC</dt><dd class="mono">0x036CbD…C2318f3dCF7e</dd></dl>
+          <dl class="kv"><dt>Chain</dt><dd>Ethereum Sepolia · 11155111</dd></dl>
+          <dl class="kv"><dt>USDC</dt><dd class="mono">0x1c7D4B…C7238</dd></dl>
           <dl class="kv"><dt>Check</dt><dd>onchain receipt</dd></dl>
           <dl class="kv"><dt>Keys</dt><dd>never sent to server</dd></dl>
           <p class="field__hint scope"><b>Scope:</b> testnet only. A production build swaps the receipt email for the payout partner's API.</p>

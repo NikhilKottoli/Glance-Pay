@@ -10,9 +10,9 @@ apps/glance-pay/web/       # the only UI (HTML/CSS/JS)
 apps/glance-pay/server/    # Node server: on-chain verification + receipt email
 ```
 
-1. **Connect wallet** (MetaMask / EIP-1193, auto-switch to Base Sepolia).
+1. **Connect wallet** (MetaMask / EIP-1193, auto-switch to Ethereum Sepolia).
 2. **Fund it** via Circle's test-USDC faucet and Base's test-ETH faucet.
-3. **Sign a real USDC transfer** on Base Sepolia (browser wallet).
+3. **Sign a real USDC transfer** on Ethereum Sepolia (browser wallet).
 4. Backend **verifies the transaction on-chain**, then **emails the receipt via Resend**.
 
 There is no mock payment path. The bank/UPI settlement step is represented by the

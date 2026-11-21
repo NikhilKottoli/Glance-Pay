@@ -1,5 +1,5 @@
 // Glance Pay — single real demo app server.
-// Flow: browser wallet signs a real Base Sepolia USDC transfer → backend verifies the
+// Flow: browser wallet signs a real Ethereum Sepolia USDC transfer → backend verifies the
 // on-chain receipt → backend emails the receipt via Resend. No mock payout path exists.
 import http from "node:http";
 import fs from "node:fs";
@@ -25,11 +25,11 @@ const PORT = Number(env.PORT || 8787);
 const EMAIL_TO = env.PAYOUT_EMAIL_TO || "nikhilkottoli2005@gmail.com";
 
 const CHAIN = Object.freeze({
-  chainId: 84532,
-  chainName: "Base Sepolia",
-  rpcUrl: "https://sepolia.base.org",
-  explorer: "https://sepolia.basescan.org",
-  usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", // Circle docs, 6 decimals
+  chainId: 11155111,
+  chainName: "Ethereum Sepolia",
+  rpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
+  explorer: "https://sepolia.etherscan.io",
+  usdc: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238", // Circle docs, 6 decimals
   treasury: (env.PAYOUT_TREASURY_ADDRESS || "0x1111111111111111111111111111111111111111").toLowerCase(),
   usdcDecimals: 6,
 });
@@ -98,7 +98,7 @@ async function sendReceiptEmail({ merchant, amount, usdc, wallet, verification, 
       subject: `Glance Pay — paid ₹${amount.toFixed(2)} to ${merchant.name}`,
       html: `<h2>Payment receipt — Glance Pay</h2>
              <p><b>Merchant:</b> ${merchant.name}</p>
-             <p><b>Amount:</b> ₹${amount.toFixed(2)} (${usdc} USDC on Base Sepolia)</p>
+             <p><b>Amount:</b> ₹${amount.toFixed(2)} (${usdc} USDC on Ethereum Sepolia)</p>
              <p><b>UPI handle:</b> ${merchant.upiUri}</p>
              <p><b>Payer:</b> ${wallet}</p>
              <p><b>On-chain tx:</b> <a href="${link}">${txHash}</a> (block ${verification.blockNumber})</p>
@@ -195,5 +195,5 @@ const server = http.createServer(async (req, res) => {
   fs.createReadStream(full).pipe(res);
 });
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Glance Pay listening on http://0.0.0.0:${PORT} · Base Sepolia USDC · on-chain verify + email receipt`);
+  console.log(`Glance Pay listening on http://0.0.0.0:${PORT} · Ethereum Sepolia USDC · on-chain verify + email receipt`);
 });

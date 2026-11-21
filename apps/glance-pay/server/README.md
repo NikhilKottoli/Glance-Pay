@@ -4,10 +4,10 @@ The only UI is `apps/glance-pay/web/`, served by this dependency-free Node 22 se
 
 ## What actually happens
 
-1. The browser connects an EIP-1193 wallet (MetaMask) and switches/adds **Base Sepolia** (chain 84532).
+1. The browser connects an EIP-1193 wallet (MetaMask) and switches/adds **Ethereum Sepolia** (chain 11155111).
 2. The user funds that address with **test USDC** (Circle faucet) and **test ETH** for gas.
 3. The user signs a real ERC-20 `transfer` of USDC to the treasury address configured in `.env`.
-4. The backend calls `eth_getTransactionReceipt` on `https://sepolia.base.org`, checks
+4. The backend calls `eth_getTransactionReceipt` on `https://ethereum-sepolia-rpc.publicnode.com`, checks
    status, USDC contract, Transfer log, recipient and amount, then **emails the receipt via Resend**.
 
 There is no mock payment path. The bank/UPI settlement step is represented by the
@@ -24,10 +24,10 @@ node apps/glance-pay/server/server.mjs
 
 Env vars: `RESEND_API_KEY`, `PAYOUT_EMAIL_TO`, `PAYOUT_TREASURY_ADDRESS`, `PORT`.
 
-Verified constants (Circle docs): Base Sepolia USDC
-`0x036CbD53842c5426634e7929541eC2318f3dCF7e`, 6 decimals, chain ID 84532.
-Faucets: https://faucet.circle.com/ (20 test USDC / 2 h) and
-https://docs.base.org/get-started/get-funds (test ETH).
+Verified constants (Circle docs): Ethereum Sepolia USDC
+`0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238`, 6 decimals, chain ID 11155111.
+Faucets: https://faucet.circle.com/ (20 test USDC / 2 h, select Ethereum Sepolia) and
+https://ethereum.org/en/developers/docs/networks/ (test ETH faucets).
 
 ## API
 

@@ -59,7 +59,7 @@ $("connect").addEventListener("click", async () => {
     await refreshBalances();
     done("fund");
     lens("Wallet ready", short(account), "pick a merchant", "IDLE");
-    status("Wallet connected on Base Sepolia. Use the faucet links if balances are zero, then press <b>Sign transaction &amp; pay</b>.");
+    status("Wallet connected on Ethereum Sepolia. Use the faucet links if balances are zero, then press <b>Sign transaction &amp; pay</b>.");
     await refreshPayments();
   } catch (e) {
     status(`Wallet connection failed: ${e.message}`, "err");
@@ -103,7 +103,7 @@ $("pay").addEventListener("click", async () => {
     });
     done("receipt");
     lens(`Paid ₹${amount.toFixed(2)}`, `to ${merchant.name}`, "receipt emailed", "SUCCESS");
-    status(`<b>Payment verified on Base Sepolia.</b><br>Receipt emailed to ${res.receiptEmail} · email id ${res.payment.emailId}<br>` +
+    status(`<b>Payment verified on Ethereum Sepolia.</b><br>Receipt emailed to ${res.receiptEmail} · email id ${res.payment.emailId}<br>` +
       `<a href="${res.payment.explorerLink}" target="_blank" rel="noopener">View transaction ${short(txHash)} ↗</a>`, "ok");
     await refreshBalances();
     await refreshPayments();

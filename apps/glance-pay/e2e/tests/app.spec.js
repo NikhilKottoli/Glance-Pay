@@ -1,13 +1,13 @@
 import { test, expect } from "@playwright/test";
 
 // Everything in the app except the wallet signature step (which requires a
-// human-controlled browser wallet with Base Sepolia test USDC).
+// human-controlled browser wallet with Ethereum Sepolia test USDC).
 
 test("app loads with real chain config and seeded merchants", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle("Glance Pay — Testnet Payment Demo");
-  await expect(page.locator("#chain-badge")).toContainText("Base Sepolia");
-  await expect(page.locator("#chain-badge")).toContainText("84532");
+  await expect(page.locator("#chain-badge")).toContainText("Ethereum Sepolia");
+  await expect(page.locator("#chain-badge")).toContainText("11155111");
   expect(await page.locator("#merchant option").count()).toBeGreaterThan(0);
   await expect(page.locator(".checklist div")).toHaveCount(4);
   await expect(page.locator("#faucet-usdc")).toHaveAttribute("href", /faucet\.circle\.com/);
@@ -65,12 +65,12 @@ test("API: health and chain describe the real onchain setup", async ({ request }
   const health = await (await request.get("/api/health")).json();
   expect(health.ok).toBe(true);
   expect(health.mode).toBe("real-onchain-testnet");
-  expect(health.chainId).toBe(84532);
+  expect(health.chainId).toBe(11155111);
 
   const chain = await (await request.get("/api/chain")).json();
-  expect(chain.usdc).toBe("0x036CbD53842c5426634e7929541eC2318f3dCF7e");
-  expect(chain.chainId).toBe(84532);
-  expect(chain.rpcUrl).toMatch(/sepolia\.base\.org/);
+  expect(chain.usdc).toBe("0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238");
+  expect(chain.chainId).toBe(11155111);
+  expect(chain.rpcUrl).toMatch(/ethereum-sepolia-rpc\.publicnode\.com/);
 });
 
 test("API: invalid merchant onboarding is rejected", async ({ request }) => {
