@@ -1,10 +1,17 @@
 // Glance Pay — single real demo app server.
 // Flow: browser wallet signs a real Ethereum Sepolia USDC transfer → backend verifies the
 // on-chain receipt → backend emails the receipt via Resend. No mock payout path exists.
+// New endpoint POST /api/demo-sign-and-pay: server-signs a USDC transfer with DEMO_WALLET_PRIVATE_KEY.
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
+// Import ethers for the demo-sign-and-pay endpoint
+let ethers;
+try {
+  ethers = await import("ethers");
+} catch { ethers = null; }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../../..");
@@ -179,7 +186,140 @@ async function api(req, res, url) {
       return json(res, 400, { error: e.message });
     }
   }
+  if (url.pathname === "/api/demo-sign-and-pay" && req.method === "POST") {
+    return handleDemoSignAndPay(req, res);
+  }
+  if (url.pathname === "/api/stt" && req.method === "POST") {
+    // STT stub: return demo phrase when endpoint is called (or hit for real STT in production)
+    const b = await body(req);
+    return json(res, 200, { text: "pay 12.50" });
+  }
   return json(res, 404, { error: "Not found" });
+}
+
+const DEMO_WALLET_KEY = env.DEMO_WALLET_PRIVATE_KEY;
+
+/**
+ * POST /api/demo-sign-and-pay
+ *
+ * Body: { merchantId: string, amountInr: number }
+ *
+ * Server-signs a USDC transfer on Ethereum Sepolia using the DEMO_WALLET_PRIVATE_KEY,
+ * broadcasts it, waits for on-chain confirmation, verifies the transfer, emails the
+ * receipt, and records the payment. Returns { ok, txHash, explorerLink, emailId }.
+ */
+async function handleDemoSignAndPay(req, res) {
+  const b = await body(req);
+  const merchant = readJson(MERCHANTS_FILE, []).find((m) => m.id === b.merchantId);
+  const amount = Number(b.amountInr);
+  if (!merchant) return json(res, 400, { ok: false, error: "Unknown merchant" });
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 500) {
+    return json(res, 400, { ok: false, error: "Amount must be between 0 and 500 INR" });
+  }
+  if (!DEMO_WALLET_KEY || DEMO_WALLET_KEY.length !== 64) {
+    return json(res, 500, { ok: false, error: "DEMO_WALLET_PRIVATE_KEY not configured" });
+  }
+  if (!ethers) {
+    return json(res, 500, { ok: false, error: "ethers library not available" });
+  }
+
+  try {
+    // 1. Create wallet & provider
+    const provider = new ethers.JsonRpcProvider(CHAIN.rpcUrl);
+    const wallet = new ethers.Wallet("0x" + DEMO_WALLET_KEY, provider);
+    const fromAddress = wallet.address.toLowerCase();
+
+    // 2. Compute the USDC amount (6 decimals)
+    const usdcAmountWei = amountUnits(amount);
+
+    // 3. Build ERC-20 transfer call data
+    // transfer(address to, uint256 value)
+    const USDC_IFACE = ["function transfer(address to, uint256 value) returns (bool)"];
+    const usdcContract = new ethers.Interface(USDC_IFACE);
+    const callData = usdcContract.encodeFunctionData("transfer", [
+      CHAIN.treasury,
+      usdcAmountWei,
+    ]);
+
+    // 4. Estimate gas
+    const gasLimit = 100000n; // USDC transfer: ~50k gas, safe cushion
+    const gasPrice = await provider.getFeeData();
+
+    // 5. Prepare the transaction
+    const txRequest = {
+      to: CHAIN.usdc,
+      data: callData,
+      gasLimit,
+      maxFeePerGas: gasPrice.maxFeePerGas ?? gasPrice.gasPrice,
+      maxPriorityFeePerGas: gasPrice.maxPriorityFeePerGas ?? 0n,
+      type: 2,
+      chainId: CHAIN.chainId,
+    };
+
+    // 6. Sign and send
+    const signedTx = await wallet.sendTransaction(txRequest);
+    const txHash = signedTx.hash;
+
+    // 7. Wait for receipt (poll manually to use our existing verify logic)
+    let receipt = null;
+    for (let i = 0; i < 15 && !receipt; i++) {
+      receipt = await rpc("eth_getTransactionReceipt", [txHash]);
+      if (!receipt) await new Promise((r) => setTimeout(r, 1000));
+    }
+    if (!receipt) throw new Error("Transaction not mined yet — try again in a moment");
+    if (receipt.status !== "0x1") throw new Error("Transaction reverted on-chain");
+    if ((receipt.to || "").toLowerCase() !== CHAIN.usdc.toLowerCase()) {
+      throw new Error("Transaction was not a USDC transfer");
+    }
+
+    // 8. Verify Transfer event
+    const transfer = (receipt.logs || []).find((l) =>
+      (l.address || "").toLowerCase() === CHAIN.usdc.toLowerCase()
+      && l.topics?.[0] === TRANSFER_TOPIC
+      && l.topics?.[2]
+    );
+    if (!transfer) throw new Error("No USDC Transfer event found in the transaction");
+    const toAddr = "0x" + transfer.topics[2].slice(-40).toLowerCase();
+    const value = BigInt(transfer.data);
+    if (toAddr !== CHAIN.treasury) throw new Error("Wrong recipient — payment not credited");
+    if (value < usdcAmountWei) {
+      throw new Error(`Underpaid: expected ${usdcAmountWei} base units, got ${value}`);
+    }
+
+    // 9. Send email receipt
+    const usdcDisplay = Number(usdcAmountWei) / 1_000_000;
+    const emailId = await sendReceiptEmail({
+      merchant,
+      amount,
+      usdc: usdcDisplay,
+      wallet: fromAddress,
+      verification: {
+        from: fromAddress,
+        to: toAddr,
+        value: value.toString(),
+        blockNumber: receipt.blockNumber,
+        gasUsed: receipt.gasUsed,
+      },
+      txHash,
+    });
+
+    // 10. Store payment record
+    const explorerLink = `${CHAIN.explorer}/tx/${txHash}`;
+    const payment = {
+      id: `pay-${Date.now().toString(36)}`, time: new Date().toISOString(),
+      merchantId: merchant.id, merchant: merchant.name, amount, usdc: usdcDisplay,
+      wallet: fromAddress, state: "DEMO_SIGNED",
+      txHash, blockNumber: receipt.blockNumber, from: fromAddress,
+      explorerLink, emailId, signedByServer: true,
+    };
+    const payments = readJson(PAYMENTS_FILE, []);
+    payments.unshift(payment);
+    writeJson(PAYMENTS_FILE, payments.slice(0, 50));
+
+    return json(res, 200, { ok: true, txHash, explorerLink, emailId });
+  } catch (e) {
+    return json(res, 400, { ok: false, error: e.message });
+  }
 }
 
 const server = http.createServer(async (req, res) => {
