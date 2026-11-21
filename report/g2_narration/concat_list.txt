@@ -1,0 +1,7 @@
+file '/home/azureuser/Glance-Pay/report/g2_segments/01-idle.mp4'
+file '/home/azureuser/Glance-Pay/report/g2_segments/02-listening.mp4'
+file '/home/azureuser/Glance-Pay/report/g2_segments/03-transcript.mp4'
+file '/home/azureuser/Glance-Pay/report/g2_segments/04-pick-merchant.mp4'
+file '/home/azureuser/Glance-Pay/report/g2_segments/05-confirm.mp4'
+file '/home/azureuser/Glance-Pay/report/g2_segments/06-pending.mp4'
+file '/home/azureuser/Glance-Pay/report/g2_segments/07-success.mp4'

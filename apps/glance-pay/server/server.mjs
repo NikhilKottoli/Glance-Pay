@@ -31,13 +31,14 @@ const env = { ...loadEnv(), ...process.env };
 const PORT = Number(env.PORT || 8787);
 const EMAIL_TO = env.PAYOUT_EMAIL_TO || "nikhilkottoli2005@gmail.com";
 
+if (!env.PAYOUT_TREASURY_ADDRESS) throw new Error("PAYOUT_TREASURY_ADDRESS is required in .env");
 const CHAIN = Object.freeze({
   chainId: 11155111,
   chainName: "Ethereum Sepolia",
   rpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
   explorer: "https://sepolia.etherscan.io",
   usdc: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238", // Circle docs, 6 decimals
-  treasury: (env.PAYOUT_TREASURY_ADDRESS || "0x1111111111111111111111111111111111111111").toLowerCase(),
+  treasury: env.PAYOUT_TREASURY_ADDRESS.toLowerCase(),
   usdcDecimals: 6,
 });
 const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
@@ -123,8 +124,12 @@ const json = (res, status, body) => {
   res.end(JSON.stringify(body));
 };
 async function body(req) {
+  const MAX_BODY = 100000;
   let raw = "";
-  for await (const chunk of req) raw += chunk;
+  for await (const chunk of req) {
+    raw += chunk;
+    if (raw.length > MAX_BODY) throw new Error("Body too large");
+  }
   try { return JSON.parse(raw || "{}"); } catch { return {}; }
 }
 const UPI_RE = /^upi:\/\/pay\?pa=[^&\s]+/;

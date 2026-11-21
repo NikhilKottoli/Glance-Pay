@@ -299,6 +299,7 @@ async function loadMerchants(): Promise<Merchant[]> {
 
 async function collectPcm(): Promise<Uint8Array> {
   pcmChunks = [];
+  audioActive = true;
   const startTime = Date.now();
   while (Date.now() - startTime < LISTEN_DURATION_MS) {
     await new Promise((r) => setTimeout(r, PCM_CHUNK_MS));
@@ -440,7 +441,6 @@ async function handleBridgeEvent(evt: any) {
     switch (state.state) {
       case LensState.IDLE: {
         await transition(LensState.LISTENING);
-        audioActive = true;
         if (bridge) {
           try {
             const sdk = await import("@evenrealities/even_hub_sdk");
@@ -464,6 +464,7 @@ async function handleBridgeEvent(evt: any) {
       case LensState.CONFIRM: {
         await transition(LensState.PENDING);
         const result = await executePayment();
+        if (state.state !== LensState.PENDING) return;
         await transition(result.ok ? LensState.SUCCESS : LensState.FAILED);
         return;
       }
@@ -568,6 +569,7 @@ async function init() {
       if (!state.amount) state.amount = 12.5;
       await transition(LensState.PENDING);
       const result = await executePayment();
+      if (state.state !== LensState.PENDING) return;
       await transition(result.ok ? LensState.SUCCESS : LensState.FAILED);
     } else if (state.state === LensState.IDLE || state.state === LensState.LISTENING) {
       state.amount = 12.5;
