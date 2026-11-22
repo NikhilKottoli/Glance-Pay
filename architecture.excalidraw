@@ -20,9 +20,7 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": {
-        "type": 3
-      },
+      "roundness": { "type": 3 },
       "seed": 1,
       "version": 1,
       "versionNonce": 1,
@@ -49,9 +47,7 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": {
-        "type": 3
-      },
+      "roundness": { "type": 3 },
       "seed": 2,
       "version": 1,
       "versionNonce": 2,
@@ -78,9 +74,7 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": {
-        "type": 3
-      },
+      "roundness": { "type": 3 },
       "seed": 3,
       "version": 1,
       "versionNonce": 3,
@@ -107,9 +101,7 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": {
-        "type": 3
-      },
+      "roundness": { "type": 3 },
       "seed": 4,
       "version": 1,
       "versionNonce": 4,
@@ -136,9 +128,7 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": {
-        "type": 3
-      },
+      "roundness": { "type": 3 },
       "seed": 5,
       "version": 1,
       "versionNonce": 5,
@@ -212,7 +202,7 @@
       "locked": false,
       "fontSize": 14,
       "fontFamily": 5,
-      "text": "• 3-line monochrome lens\n• Voice → STT → parser\n• R1 ring tap confirm\n• GPS nearby merchants\n• Smart repeat defaults\n• State machine: IDLE→LISTEN→PICK→CONFIRM→PENDING→SUCCESS",
+      "text": "• Voice → STT → parser\n• R1 ring tap confirm\n• GPS nearby merchants",
       "rawText": "• 3-line monochrome lens\n• Voice → STT → parser\n• R1 ring tap confirm\n• GPS nearby merchants\n• Smart repeat defaults\n• State machine: IDLE→LISTEN→PICK→CONFIRM→PENDING→SUCCESS",
       "textAlign": "left",
       "verticalAlign": "top",
@@ -284,7 +274,7 @@
       "locked": false,
       "fontSize": 14,
       "fontFamily": 5,
-      "text": "• MetaMask wallet connect\n• Merchant picker w/ distance\n• Amount → USDC preview\n• Sign & broadcast tx\n• TTS: \"Payment confirmed\"\n• Admin: onboard merchants\n• Payment history + receipts",
+      "text": "• MetaMask wallet connect\n• Merchant picker w/ GPS distance\n• Sign & broadcast tx\n• TTS payment confirmation",
       "rawText": "• MetaMask wallet connect\n• Merchant picker w/ distance\n• Amount → USDC preview\n• Sign & broadcast tx\n• TTS: \"Payment confirmed\"\n• Admin: onboard merchants\n• Payment history + receipts",
       "textAlign": "left",
       "verticalAlign": "top",
@@ -356,7 +346,7 @@
       "locked": false,
       "fontSize": 14,
       "fontFamily": 5,
-      "text": "• /api/merchants (CRUD)\n• /api/pay — verify on-chain\n• /api/demo-sign-and-pay — server signs USDC\n• /api/stt — Whisper endpoint (stub)\n• On-chain verification:\n  - Poll eth_getTransactionReceipt\n  - Check USDC Transfer event\n  - Verify recipient = treasury\n  - Verify amount ≥ expected\n• Resend email receipt\n• JSON file storage (payments/merchants)",
+      "text": "• /api/pay — verify on-chain receipt\n• /api/demo-sign-and-pay — server signs USDC\n• On-chain verification (poll receipt, verify Transfer)\n• Resend email receipt",
       "rawText": "• /api/merchants (CRUD)\n• /api/pay — verify on-chain\n• /api/demo-sign-and-pay — server signs USDC\n• /api/stt — Whisper endpoint (stub)\n• On-chain verification:\n  - Poll eth_getTransactionReceipt\n  - Check USDC Transfer event\n  - Verify recipient = treasury\n  - Verify amount ≥ expected\n• Resend email receipt\n• JSON file storage (payments/merchants)",
       "textAlign": "left",
       "verticalAlign": "top",
@@ -428,7 +418,7 @@
       "locked": false,
       "fontSize": 13,
       "fontFamily": 5,
-      "text": "Chain ID: 11155111\nUSDC: 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238\nTestnet only — no real value\nReal on-chain settlement",
+      "text": "Chain ID: 11155111\nUSDC contract\nReal on-chain settlement",
       "rawText": "Chain ID: 11155111\nUSDC: 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238\nTestnet only — no real value\nReal on-chain settlement",
       "textAlign": "center",
       "verticalAlign": "top",
@@ -500,7 +490,7 @@
       "locked": false,
       "fontSize": 13,
       "fontFamily": 5,
-      "text": "Receipt with:\n• Merchant & amount\n• UPI handle\n• Payer address\n• Tx hash + block\n• Explorer link",
+      "text": "Receipt: merchant, amount, tx hash, block",
       "rawText": "Receipt with:\n• Merchant & amount\n• UPI handle\n• Payer address\n• Tx hash + block\n• Explorer link",
       "textAlign": "center",
       "verticalAlign": "top",
@@ -525,9 +515,7 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": {
-        "type": 2
-      },
+      "roundness": { "type": 2 },
       "seed": 16,
       "version": 1,
       "versionNonce": 16,
@@ -538,20 +526,9 @@
       "locked": false,
       "startArrowhead": null,
       "endArrowhead": "arrow",
-      "startBinding": {
-        "elementId": "g2-app",
-        "focus": 0.3,
-        "gap": 2
-      },
-      "endBinding": {
-        "elementId": "backend",
-        "focus": 0.2,
-        "gap": 2
-      },
-      "points": [
-        [0, 0],
-        [130, 0]
-      ],
+      "startBinding": { "elementId": "g2-app", "focus": 0.3, "gap": 2 },
+      "endBinding": { "elementId": "backend", "focus": 0.2, "gap": 2 },
+      "points": [[0, 0], [130, 0]],
       "lastCommittedPoint": null,
       "startMarker": "none",
       "endMarker": "arrow"
@@ -573,9 +550,7 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": {
-        "type": 2
-      },
+      "roundness": { "type": 2 },
       "seed": 17,
       "version": 1,
       "versionNonce": 17,
@@ -586,20 +561,9 @@
       "locked": false,
       "startArrowhead": null,
       "endArrowhead": "arrow",
-      "startBinding": {
-        "elementId": "web-panel",
-        "focus": 0.7,
-        "gap": 2
-      },
-      "endBinding": {
-        "elementId": "backend",
-        "focus": 0.6,
-        "gap": 2
-      },
-      "points": [
-        [0, 0],
-        [130, 0]
-      ],
+      "startBinding": { "elementId": "web-panel", "focus": 0.7, "gap": 2 },
+      "endBinding": { "elementId": "backend", "focus": 0.6, "gap": 2 },
+      "points": [[0, 0], [130, 0]],
       "lastCommittedPoint": null,
       "startMarker": "none",
       "endMarker": "arrow"
@@ -621,9 +585,7 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": {
-        "type": 2
-      },
+      "roundness": { "type": 2 },
       "seed": 18,
       "version": 1,
       "versionNonce": 18,
@@ -634,20 +596,9 @@
       "locked": false,
       "startArrowhead": null,
       "endArrowhead": "arrow",
-      "startBinding": {
-        "elementId": "backend",
-        "focus": 0.45,
-        "gap": 2
-      },
-      "endBinding": {
-        "elementId": "sepolia",
-        "focus": 0.5,
-        "gap": 2
-      },
-      "points": [
-        [0, 0],
-        [160, 0]
-      ],
+      "startBinding": { "elementId": "backend", "focus": 0.45, "gap": 2 },
+      "endBinding": { "elementId": "sepolia", "focus": 0.5, "gap": 2 },
+      "points": [[0, 0], [160, 0]],
       "lastCommittedPoint": null,
       "startMarker": "none",
       "endMarker": "arrow"
@@ -669,9 +620,7 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": {
-        "type": 2
-      },
+      "roundness": { "type": 2 },
       "seed": 19,
       "version": 1,
       "versionNonce": 19,
@@ -682,20 +631,9 @@
       "locked": false,
       "startArrowhead": null,
       "endArrowhead": "arrow",
-      "startBinding": {
-        "elementId": "backend",
-        "focus": 0.15,
-        "gap": 2
-      },
-      "endBinding": {
-        "elementId": "resend",
-        "focus": 0.5,
-        "gap": 2
-      },
-      "points": [
-        [0, 0],
-        [160, 0]
-      ],
+      "startBinding": { "elementId": "backend", "focus": 0.15, "gap": 2 },
+      "endBinding": { "elementId": "resend", "focus": 0.5, "gap": 2 },
+      "points": [[0, 0], [160, 0]],
       "lastCommittedPoint": null,
       "startMarker": "none",
       "endMarker": "arrow"
@@ -791,18 +729,11 @@
     "currentItemRoundness": "round",
     "scrollX": 0,
     "scrollY": 0,
-    "zoom": {
-      "value": 1
-    },
+    "zoom": { "value": 1 },
     "gridSize": 20,
     "gridStep": 5,
     "gridModeEnabled": false,
-    "gridColor": {
-      "r": 0.9,
-      "g": 0.9,
-      "b": 0.9,
-      "a": 0.5
-    }
+    "gridColor": { "r": 0.9, "g": 0.9, "b": 0.9, "a": 0.5 }
   },
   "files": {}
 }
