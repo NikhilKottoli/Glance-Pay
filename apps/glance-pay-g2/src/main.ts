@@ -171,6 +171,7 @@ interface AppState {
   txHash: string | null;
   emailId: string | null;
   transcript: string | null;
+  userLocation: { lat: number; lng: number } | null;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────
@@ -180,6 +181,98 @@ const PCM_CHUNK_MS = 100;
 const LISTEN_DURATION_MS = 2500;
 
 const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) || "http://127.0.0.1:8787";
+
+// High-impact UX improvements: R1 ring input, smart defaults, nearby merchants.
+const LAST_PAYMENT_KEY = "glancepay.lastPayment";
+
+/** Classify the source of an Even Hub event without throwing on malformed input. */
+export function eventSourceLabel(evt: any): "RING" | "GLASSES" | "UNKNOWN" {
+  try {
+    const src =
+      evt?.textEvent?.eventSource ??
+      evt?.sysEvent?.eventSource ??
+      evt?.listEvent?.eventSource ??
+      evt?.eventSource;
+    if (typeof src === "number") {
+      if (src === RING_SOURCE) return "RING";
+      if (src === 1) return "GLASSES";
+      return "UNKNOWN";
+    }
+    if (typeof src === "string") {
+      if (/ring|r1/i.test(src)) return "RING";
+      if (/glass|temple/i.test(src)) return "GLASSES";
+    }
+  } catch {
+    // defensive: never let an event source crash the lens
+  }
+  return "UNKNOWN";
+}
+
+/** Haversine distance in metres between two lat/lng points. */
+export function haversineMeters(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number }
+): number {
+  const earthRadius = 6371000;
+  const rad = (d: number) => (d * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat);
+  const dLng = rad(b.lng - a.lng);
+  const lat1 = rad(a.lat);
+  const lat2 = rad(b.lat);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * earthRadius * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+/** Sort merchants nearest-first. No-op (copy) when no valid origin is available. */
+export function sortMerchantsByDistance<T extends { lat: number; lng: number }>(
+  merchants: T[],
+  origin?: { lat: number; lng: number } | null
+): T[] {
+  if (!origin || !Number.isFinite(origin.lat) || !Number.isFinite(origin.lng)) {
+    return merchants.slice();
+  }
+  return merchants
+    .map((m) => ({ merchant: m, distance: haversineMeters(origin, m) }))
+    .sort((a, b) => a.distance - b.distance)
+    .map((entry) => entry.merchant);
+}
+
+interface LastPayment {
+  merchantId: string;
+  amount: number;
+}
+
+function loadLastPayment(): LastPayment | null {
+  try {
+    if (typeof localStorage === "undefined") return null;
+    const raw = localStorage.getItem(LAST_PAYMENT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (
+      parsed &&
+      typeof parsed.merchantId === "string" &&
+      Number.isFinite(parsed.amount) &&
+      parsed.amount > 0
+    ) {
+      return parsed;
+    }
+  } catch {
+    // corrupted or unavailable storage — ignore
+  }
+  return null;
+}
+
+function saveLastPayment(payment: LastPayment): void {
+  try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(LAST_PAYMENT_KEY, JSON.stringify(payment));
+    }
+  } catch {
+    // storage may be disabled in the WebView; defaults are optional
+  }
+}
 
 const LENS_CONFIG = {
   line1: { containerID: 1, y: 10, h: 80 },
@@ -212,15 +305,28 @@ function lensText(state: AppState): [string, string, string] {
   const merchantName = state.merchant?.name ?? "";
 
   switch (state.state) {
-    case LensState.IDLE:
+    case LensState.IDLE: {
+      const last = loadLastPayment();
+      const suggested = last ? state.merchants.find((m) => m.id === last.merchantId) : null;
+      if (last && suggested) {
+        return ["Glance Pay", `Again? Rs ${last.amount.toFixed(2)}`, `${suggested.name} - tap to speak`];
+      }
       return ["Glance Pay", "Ring or tap to pay", "Say an amount"];
+    }
     case LensState.LISTENING:
       return ["Listening...", "Say: pay 12.50", ""];
     case LensState.PICK_MERCHANT: {
       const items = state.merchants
         .map((m, i) => `${i === state.merchantIndex ? ">" : " "}${i + 1}. ${m.name}`)
         .join("  ");
-      return ["Pick merchant", items, "Swipe - tap select"];
+      const selected = state.merchants[state.merchantIndex];
+      let hint = "Swipe - tap select";
+      if (selected && state.userLocation) {
+        const distance = haversineMeters(state.userLocation, selected);
+        const label = distance < 1000 ? `${Math.round(distance)}m` : `${(distance / 1000).toFixed(1)}km`;
+        hint = `${label} away - swipe - tap`;
+      }
+      return ["Pick merchant", items, hint];
     }
     case LensState.CONFIRM:
       return [merchantName, `${amtStr} ~ ${usdcStr}`, "Tap to pay - ring cancel"];
@@ -250,6 +356,7 @@ const state: AppState = {
   txHash: null,
   emailId: null,
   transcript: null,
+  userLocation: null,
 };
 
 async function renderLens() {
@@ -275,20 +382,45 @@ async function transition(newState: string) {
   await renderLens();
 }
 
+async function loadUserLocation(): Promise<void> {
+  try {
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    const position = await new Promise<any>((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve(pos),
+        () => resolve(null),
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 600000 }
+      );
+    });
+    if (position && position.coords) {
+      state.userLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      };
+    }
+  } catch {
+    // geolocation denied or unavailable — keep original merchant order
+  }
+}
+
 async function loadMerchants(): Promise<Merchant[]> {
+  let merchants: Merchant[] = [];
   try {
     const res = await fetch(`${API_BASE}/api/merchants`);
     if (res.ok) {
       const data = await res.json();
-      return data.merchants || [];
+      merchants = data.merchants || [];
     }
   } catch {
     // fallback
   }
-  return [
-    { id: "cafe-x", name: "Caf\u00E9 X", address: "Church St, Bengaluru", lat: 12.9716, lng: 77.5946, upiUri: "upi://pay?pa=cafex@upi&pn=Cafe%20X&cu=INR", category: "cafe", aliases: ["cafe x"] },
-    { id: "blue-tokai", name: "Blue Tokai", address: "Church St, Bengaluru", lat: 12.97172, lng: 77.59475, upiUri: "upi://pay?pa=bluetokai@okaxis&pn=Blue%20Tokai&cu=INR", category: "cafe", aliases: ["blue tokai"] },
-  ];
+  if (merchants.length === 0) {
+    merchants = [
+      { id: "cafe-x", name: "Caf\u00E9 X", address: "Church St, Bengaluru", lat: 12.9716, lng: 77.5946, upiUri: "upi://pay?pa=cafex@upi&pn=Cafe%20X&cu=INR", category: "cafe", aliases: ["cafe x"] },
+      { id: "blue-tokai", name: "Blue Tokai", address: "Church St, Bengaluru", lat: 12.97172, lng: 77.59475, upiUri: "upi://pay?pa=bluetokai@okaxis&pn=Blue%20Tokai&cu=INR", category: "cafe", aliases: ["blue tokai"] },
+    ];
+  }
+  return sortMerchantsByDistance(merchants, state.userLocation);
 }
 
 // ─── Audio / Voice ────────────────────────────────────────────────────
@@ -357,6 +489,17 @@ async function processVoice(transcript: string): Promise<void> {
       }
     }
 
+    // Smart default: if no merchant was spoken, reuse the last paid merchant
+    // so a single amount phrase is enough to complete a repeat payment.
+    if (!state.merchant) {
+      const last = loadLastPayment();
+      const suggested = last ? state.merchants.find((m) => m.id === last.merchantId) : null;
+      if (suggested) {
+        state.merchant = suggested;
+        state.merchantIndex = state.merchants.indexOf(suggested);
+      }
+    }
+
     if (state.merchant) {
       await transition(LensState.CONFIRM);
     } else {
@@ -386,6 +529,8 @@ async function executePayment(): Promise<{ ok: boolean; txHash?: string; explore
     if (res.ok && data.ok) {
       state.txHash = data.txHash;
       state.emailId = data.emailId;
+      // Remember this payment so the next glance can offer a one-tap repeat.
+      saveLastPayment({ merchantId: state.merchant.id, amount: state.amount });
       return { ok: true, txHash: data.txHash, explorerLink: data.explorerLink, emailId: data.emailId };
     }
     return { ok: false, error: data.error || "Payment failed" };
@@ -412,6 +557,9 @@ async function handleBridgeEvent(evt: any) {
 
   const typeStr = (eventType || "").toUpperCase();
 
+  const source = eventSourceLabel(evt);
+  const fromRing = source === "RING";
+
   // Double-click / Long-press → IDLE
   if (typeStr.includes("DOUBLE_CLICK") || typeStr === "3" || typeStr === "DOUBLE_CLICK_EVENT") {
     if (audioActive && bridge) { try { await bridge.audioControl(false); } catch {} }
@@ -419,6 +567,7 @@ async function handleBridgeEvent(evt: any) {
     state.amount = null; state.merchant = null; state.transcript = null; state.txHash = null; state.emailId = null;
     pcmChunks = [];
     await transition(LensState.IDLE);
+    console.info(`[glance-pay] cancel via ${fromRing ? "R1 ring" : "glasses"}`);
     return;
   }
 
@@ -454,11 +603,13 @@ async function handleBridgeEvent(evt: any) {
         if (state.merchants.length > 0) {
           state.merchant = state.merchants[state.merchantIndex];
           await transition(LensState.CONFIRM);
+          console.info(`[glance-pay] select via ${fromRing ? "R1 ring" : "glasses"}`);
         }
         return;
       }
       case LensState.CONFIRM: {
         await transition(LensState.PENDING);
+        console.info(`[glance-pay] confirm via ${fromRing ? "R1 ring" : "glasses"}`);
         const result = await executePayment();
         if (state.state !== LensState.PENDING) return;
         await transition(result.ok ? LensState.SUCCESS : LensState.FAILED);
@@ -510,7 +661,8 @@ function handleAudioEvent(audioEvent: any) {
 // ─── Init ─────────────────────────────────────────────────────────────
 
 async function init() {
-  // Load merchants
+  // Load user location first, then merchants (sorted by distance)
+  await loadUserLocation();
   state.merchants = await loadMerchants();
   if (state.merchants.length > 0 && !state.merchant) {
     state.merchant = state.merchants[0];
@@ -534,7 +686,8 @@ async function init() {
     });
 
     bridge.onEvenHubEvent(async (event: any) => {
-      dbg("dbg-event", JSON.stringify(event).slice(0, 100));
+      const evtSource = eventSourceLabel(event);
+      dbg(evtSource === "RING" ? "R1 dbg-event" : "dbg-event", JSON.stringify(event).slice(0, 100));
       if (event.audioEvent) handleAudioEvent(event.audioEvent);
       if (event.textEvent || event.sysEvent || event.listEvent) {
         await handleBridgeEvent(event);

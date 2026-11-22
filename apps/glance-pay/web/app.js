@@ -19,6 +19,76 @@ const units = (inr) => BigInt(Math.round((Number(inr) * 1_000_000) / 83)); // sa
 let cfg = null;
 let account = null;
 let merchants = [];
+let userLocation = null;
+
+// ---- TTS / Speech Synthesis ----
+function speak(text) {
+  try {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    window.speechSynthesis.cancel(); // interrupt any pending
+    window.speechSynthesis.speak(utterance);
+  } catch {
+    // TTS unavailable or blocked — fail silently
+  }
+}
+
+// ---- Geolocation + nearby sorting ----
+function haversineMeters(a, b) {
+  const R = 6371000;
+  const rad = (d) => (d * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat);
+  const dLng = rad(b.lng - a.lng);
+  const lat1 = rad(a.lat);
+  const lat2 = rad(b.lat);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+function sortMerchantsByDistance(list, origin) {
+  if (!origin || !Number.isFinite(origin.lat) || !Number.isFinite(origin.lng)) return list.slice();
+  return list
+    .map((m) => ({ merchant: m, distance: haversineMeters(origin, m) }))
+    .sort((a, b) => a.distance - b.distance)
+    .map((e) => e.merchant);
+}
+
+async function loadUserLocation() {
+  try {
+    if (!navigator.geolocation) return;
+    const pos = await new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (p) => resolve(p),
+        () => resolve(null),
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 600000 }
+      );
+    });
+    if (pos && pos.coords) {
+      userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    }
+  } catch {
+    // denied or unavailable
+  }
+}
+
+// ---- Smart defaults (last payment) ----
+const LAST_PAYMENT_KEY = "glancepay.lastPayment";
+function loadLastPayment() {
+  try {
+    const raw = localStorage.getItem(LAST_PAYMENT_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw);
+    if (p && typeof p.merchantId === "string" && Number.isFinite(p.amount) && p.amount > 0) return p;
+  } catch {}
+  return null;
+}
+function saveLastPayment(p) {
+  try { localStorage.setItem(LAST_PAYMENT_KEY, JSON.stringify(p)); } catch {}
+}
 
 function short(addr) { return addr ? `${addr.slice(0, 8)}…${addr.slice(-4)}` : "—"; }
 
@@ -43,6 +113,17 @@ async function refreshBalances() {
     params: [{ to: cfg.usdc, data: "0x70a08231" + pad32(account) }, "latest"] });
   $("eth-balance").textContent = (Number(BigInt(ethHex)) / 1e18).toFixed(5);
   $("usdc-balance").textContent = (Number(BigInt(usdcHex)) / 1e6).toFixed(4);
+}
+
+async function applyLastPaymentDefaults() {
+  const last = loadLastPayment();
+  if (!last) return;
+  const m = merchants.find((x) => x.id === last.merchantId);
+  if (m) {
+    $("merchant").value = m.id;
+    $("amount").value = String(last.amount);
+    previewSelection();
+  }
 }
 
 $("connect").addEventListener("click", async () => {
@@ -105,11 +186,15 @@ $("pay").addEventListener("click", async () => {
     lens(`Paid ₹${amount.toFixed(2)}`, `to ${merchant.name}`, "receipt emailed", "SUCCESS");
     status(`<b>Payment verified on Ethereum Sepolia.</b><br>Receipt emailed to ${res.receiptEmail} · email id ${res.payment.emailId}<br>` +
       `<a href="${res.payment.explorerLink}" target="_blank" rel="noopener">View transaction ${short(txHash)} ↗</a>`, "ok");
+    // Save last payment for smart defaults and speak confirmation
+    saveLastPayment({ merchantId: merchant.id, amount });
+    speak(`Payment of rupees ${amount.toFixed(2)} to ${merchant.name} confirmed.`);
     await refreshBalances();
     await refreshPayments();
   } catch (e) {
     lens("Payment failed", "No charge made", "see message", "FAILED");
     status(`Payment failed: ${e.message}`, "err");
+    speak("Payment failed. No charge was made.");
   } finally {
     $("pay").disabled = false;
   }
@@ -143,7 +228,15 @@ $("tab-admin").addEventListener("click", () => {
 });
 
 function renderMerchants() {
-  $("merchant").innerHTML = merchants.map((m) => `<option value="${m.id}">${m.name} — ${m.category}</option>`).join("");
+  const withDistance = (m) => {
+    if (userLocation && Number.isFinite(m.lat) && Number.isFinite(m.lng)) {
+      const d = haversineMeters(userLocation, m);
+      const label = d < 1000 ? `${Math.round(d)}m` : `${(d / 1000).toFixed(1)}km`;
+      return `${m.name} — ${m.category} (${label})`;
+    }
+    return `${m.name} — ${m.category}`;
+  };
+  $("merchant").innerHTML = merchants.map((m) => `<option value="${m.id}">${withDistance(m)}</option>`).join("");
   $("admin-merchants").innerHTML = merchants.map((m) =>
     `<div><b>${m.name}</b> · ${m.address} · ${m.upiUri}</div>`).join("");
   previewSelection();
@@ -160,8 +253,10 @@ async function refreshPayments() {
   renderPayments(payments.filter((p) => !account || p.wallet === account), "payments");
 }
 async function loadMerchants() {
-  merchants = (await api("/api/merchants")).merchants;
+  await loadUserLocation();
+  merchants = sortMerchantsByDistance((await api("/api/merchants")).merchants, userLocation);
   renderMerchants();
+  await applyLastPaymentDefaults();
 }
 
 (async () => {
