@@ -8,7 +8,7 @@
 
 ## Architecture
 
-![Architecture Diagram](architecture.excalidraw)
+![Architecture Diagram](architecture.png)
 
 **Flow:** G2 Lens App (voice + ring) → Web Panel (wallet + TTS) → Node Backend (on-chain verify + email) → Ethereum Sepolia (USDC) → Resend (receipt)
 
