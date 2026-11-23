@@ -6,30 +6,69 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Glance Pay G2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      html, body, #app {
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background: #000;
-        color: #0f0;
-        font-family: 'JetBrains Mono', 'Fira Code', monospace;
-      }
-      #app {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; overflow: hidden; background: #000; color: #0f0; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+      #app { width: 100%; height: 100%; display: flex; flex-direction: column; }
+      /* Lens simulator - matches G2 576x288 aspect ratio */
+      .lens-frame { position: relative; width: 100%; max-width: 576px; aspect-ratio: 2 / 1; background: #000; border: 2px solid #0f0; border-radius: 8px; margin: 20px auto 0; box-shadow: 0 0 20px #0f0, inset 0 0 20px #0f0; overflow: hidden; }
+      .lens-line { position: absolute; left: 0; right: 0; height: 33.33%; font-size: 1.5rem; line-height: 1.5; padding: 0 12px; display: flex; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'JetBrains Mono', monospace; font-weight: 700; text-shadow: 0 0 8px #0f0; }
+      .lens-line:nth-child(1) { top: 0; }
+      .lens-line:nth-child(2) { top: 33.33%; }
+      .lens-line:nth-child(3) { top: 66.66%; }
+      /* Debug panel */
+      .debug-panel { margin-top: 16px; padding: 12px; background: #001100; border: 1px solid #0f0; border-radius: 4px; font-size: 0.75rem; max-width: 576px; margin-left: auto; margin-right: auto; width: 90%; }
+      .debug-row { display: flex; gap: 8px; margin: 4px 0; flex-wrap: wrap; align-items: center; }
+      .debug-label { color: #0a0; min-width: 100px; }
+      .debug-value { color: #0f0; font-family: monospace; }
+      .btn { padding: 8px 16px; background: #000; color: #0f0; border: 1px solid #0f0; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.8rem; transition: all 0.1s; }
+      .btn:hover { background: #0f0; color: #000; }
+      .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+      .state-badge { display: inline-block; padding: 2px 8px; background: #002200; border: 1px solid #0f0; border-radius: 3px; font-size: 0.7rem; letter-spacing: 0.5px; }
+      h1 { font-size: 1.2rem; margin-bottom: 8px; text-align: center; text-shadow: 0 0 10px #0f0; }
     </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <h1>Glance Pay — G2 Lens Simulator</h1>
+      <!-- Lens Display -->
+      <div class="lens-frame" id="lens-frame">
+        <div class="lens-line" id="lens-line-1">Glance Pay</div>
+        <div class="lens-line" id="lens-line-2">Ring or tap to pay</div>
+        <div class="lens-line" id="lens-line-3">Say an amount</div>
+      </div>
+      <!-- Debug Panel -->
+      <div class="debug-panel">
+        <div class="debug-row">
+          <span class="debug-label">State:</span>
+          <span class="state-badge" id="dbg-state">IDLE</span>
+          <span class="debug-label">Event:</span>
+          <span class="debug-value" id="dbg-event">—</span>
+        </div>
+        <div class="debug-row">
+          <span class="debug-label">Merchant:</span>
+          <span class="debug-value" id="dbg-merchant">—</span>
+          <span class="debug-label">Amount:</span>
+          <span class="debug-value" id="dbg-amount">—</span>
+        </div>
+        <div class="debug-row">
+          <span class="debug-label">Transcript:</span>
+          <span class="debug-value" id="dbg-transcript">—</span>
+        </div>
+        <div class="debug-row">
+          <span class="debug-label">Tx Hash:</span>
+          <span class="debug-value" id="dbg-tx">—</span>
+        </div>
+        <div class="debug-row">
+          <button class="btn" id="btn-reset">Reset</button>
+          <button class="btn" id="btn-demo-voice">Demo Voice</button>
+          <button class="btn" id="btn-approve">Approve / Tap</button>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

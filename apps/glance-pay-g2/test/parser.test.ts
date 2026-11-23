@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { parseVoice, ParseError } from "../src/main";
+import { parseVoice, ParseError } from "../src/parser";
 
 describe("parseVoice", () => {
   test("parses decimal amount: pay 12.50", () => {

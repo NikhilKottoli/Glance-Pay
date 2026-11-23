@@ -1,0 +1,56 @@
+{
+  "voice": "en-US-AriaNeural",
+  "rate": "-5%",
+  "slides": [
+    {
+      "image": "report/hq_frames/hq-frame-01-dashboard.png",
+      "audio": "hq-01-dashboard.mp3",
+      "text": "Glance Pay \u2014 hands-free stablecoin payments on Even Realities G2 smart glasses. Built for the Heads Up hackathon, DeFi track."
+    },
+    {
+      "image": "report/hq_frames/hq-frame-02-connect.png",
+      "audio": "hq-02-connect.mp3",
+      "text": "Step one: connect your MetaMask wallet. The app auto-switches to Ethereum Sepolia testnet. No real funds \u2014 test USDC only."
+    },
+    {
+      "image": "report/hq_frames/hq-frame-03-merchant.png",
+      "audio": "hq-03-merchant.mp3",
+      "text": "Merchant picker sorted by GPS distance. Caf\u00e9 X at 50 meters, Blue Tokai at 120 meters. Scroll the R1 ring or glasses temple to choose."
+    },
+    {
+      "image": "report/hq_frames/hq-frame-04-amount.png",
+      "audio": "hq-04-amount.mp3",
+      "text": "Enter the amount in rupees. The USDC preview updates live \u2014 12 rupees 50 becomes approximately zero point one five USDC."
+    },
+    {
+      "image": "report/hq_frames/hq-frame-05-pay.png",
+      "audio": "hq-05-pay.mp3",
+      "text": "The Pay tab shows the sign button. One click opens MetaMask to sign a real USDC transfer on Sepolia. No mock path \u2014 real on-chain."
+    },
+    {
+      "image": "report/hq_frames/hq-frame-06-admin.png",
+      "audio": "hq-06-admin.mp3",
+      "text": "Admin dashboard: onboard new merchants with name, GPS coordinates, UPI URI, and category. All stored locally for the demo."
+    },
+    {
+      "image": "report/hq_frames/hq-frame-07-network.png",
+      "audio": "hq-07-network.mp3",
+      "text": "Network panel shows verified on-chain settlement: Ethereum Sepolia chain 11155111, USDC contract, receipt emailed via Resend."
+    },
+    {
+      "image": "report/hq_frames/hq-frame-08-g2.png",
+      "audio": "hq-08-g2.mp3",
+      "text": "The G2 lens app: three lines of monochrome green text. IDLE state shows 'Glance Pay / Ring or tap to pay / Say an amount'. Tap to listen."
+    },
+    {
+      "image": "report/hq_frames/hq-frame-09-g2-listening.png",
+      "audio": "hq-09-g2-listening.mp3",
+      "text": "LISTENING state: 'Listening... / Say: pay 12.50'. Raw microphone PCM streams to backend for speech-to-text, then parser extracts amount and merchant."
+    },
+    {
+      "image": "report/hq_frames/hq-frame-10-history.png",
+      "audio": "hq-10-history.mp3",
+      "text": "Payment history in admin tab \u2014 every payment verified on-chain with Etherscan link. Smart defaults remember your last payment for one-tap repeat."
+    }
+  ]
+}
