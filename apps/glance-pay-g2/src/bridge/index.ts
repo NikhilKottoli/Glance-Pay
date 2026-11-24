@@ -4,13 +4,23 @@
 
 import { state, LensState, loadLastPayment, saveLastPayment } from "../state";
 import { executePayment } from "../utils/api";
-import { eventSourceLabel, setBridge, getBridge, collectPcm, transcribePcm, getAudioActive, setAudioActive } from "./audio";
+import { eventSourceLabel, collectPcm, transcribePcm, getAudioActive, setAudioActive } from "./audio";
 import { processVoice } from "./voice";
 import { renderLens, transition } from "../lens";
 import { loadLastPayment as loadLastPaymentUtil, saveLastPayment as saveLastPaymentUtil } from "../state";
 
+import * as audioModule from "./audio";
+
+export const setBridge = (b: any) => {
+  audioModule.setBridge(b);
+};
+
+export const getBridge = () => {
+  return audioModule.getBridge();
+}
+
 export async function handleBridgeEvent(evt: any, bridgeInstance: any) {
-  setBridge(bridgeInstance);
+  audioModule.setBridge(bridgeInstance);
   let eventType: string | undefined;
 
   if (evt.textEvent) {
@@ -108,15 +118,6 @@ export async function handleBridgeEvent(evt: any, bridgeInstance: any) {
   }
 }
 
-export async function handleAudioEvent(audioEvent: any) {
-  const { handleAudioEvent: handle } = await import("./audio");
-  handle(audioEvent);
-}
-
-export function setBridge(b: any) {
-  setBridge(b);
-}
-
-export function getBridge(): any {
-  return getBridge();
+export function handleAudioEvent(audioEvent: any) {
+  audioModule.handleAudioEvent(audioEvent);
 }

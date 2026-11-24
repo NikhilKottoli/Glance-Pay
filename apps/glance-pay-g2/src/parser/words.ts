@@ -69,5 +69,6 @@ export function wordsToNumber(tokens: string[]): number | null {
   }
 
   total += current;
+  if (tokens.length === 0) return null;
   return total;
 }
