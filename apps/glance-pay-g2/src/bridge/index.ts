@@ -2,7 +2,7 @@
  * Even Hub Bridge event handling for Glance Pay G2 app.
  */
 
-import { state, LensState, loadLastPayment, saveLastPayment } from "../state";
+import { state, LensState, loadLastPayment, saveLastPayment, onConfirmEnter, onConfirmExit } from "../state";
 import { executePayment } from "../utils/api";
 import { eventSourceLabel, collectPcm, transcribePcm, getAudioActive, setAudioActive } from "./audio";
 import { processVoice } from "./voice";
@@ -17,7 +17,7 @@ export const setBridge = (b: any) => {
 
 export const getBridge = () => {
   return audioModule.getBridge();
-}
+};
 
 export async function handleBridgeEvent(evt: any, bridgeInstance: any) {
   audioModule.setBridge(bridgeInstance);
@@ -72,7 +72,7 @@ export async function handleBridgeEvent(evt: any, bridgeInstance: any) {
         }
         const pcm = await collectPcm();
         const transcript = await transcribePcm(pcm);
-        await processVoice(transcript);
+        await processVoicePipeline(transcript);
         return;
       }
       case "PICK_MERCHANT": {
@@ -84,20 +84,24 @@ export async function handleBridgeEvent(evt: any, bridgeInstance: any) {
         return;
       }
       case "CONFIRM": {
+        onConfirmEnter();
         await transition("PENDING");
         console.info(`[glance-pay] confirm via ${fromRing ? "R1 ring" : "glasses"}`);
         const result = await executePayment();
+        onConfirmExit();
         if (state.state !== "PENDING") return;
         await transition(result.ok ? "SUCCESS" : "FAILED");
         return;
       }
       case "FAILED": {
         state.txHash = null; state.emailId = null;
+        onConfirmExit();
         await transition("CONFIRM");
         return;
       }
       case "SUCCESS": {
         state.amount = null; state.merchant = null; state.txHash = null; state.emailId = null; state.transcript = null;
+        onConfirmExit();
         await transition("IDLE");
         return;
       }

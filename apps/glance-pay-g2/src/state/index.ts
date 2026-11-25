@@ -64,7 +64,7 @@ export const state: AppState = {
   userLocation: null,
 };
 
-export async function loadUserLocation(): Promise<{ lat: number; lng: number } | null> {
+async function loadUserLocation(): Promise<{ lat: number; lng: number } | null> {
   try {
     if (typeof navigator === "undefined" || !navigator.geolocation) return null;
     const position = await new Promise<any>((resolve) => {
@@ -86,4 +86,59 @@ export async function loadUserLocation(): Promise<{ lat: number; lng: number } |
   return null;
 }
 
-export { LensState, loadLastPayment, saveLastPayment, loadMerchants, sortMerchantsByDistance };
+// Escalation configuration
+const CONFIRM_TIMEOUT_MS = 30000; // 30 seconds
+const MAX_RETRIES = 1;
+
+let confirmTimeoutId: ReturnType<typeof setTimeout> | null = null;
+let retryCount = 0;
+
+function clearConfirmTimeout(): void {
+  if (confirmTimeoutId) {
+    clearTimeout(confirmTimeoutId);
+    confirmTimeoutId = null;
+  }
+  retryCount = 0;
+}
+
+function startConfirmTimeout(): void {
+  clearConfirmTimeout();
+  confirmTimeoutId = setTimeout(async () => {
+    if (state.state !== "CONFIRM") return;
+    
+    if (retryCount < 1) {
+      // Retry once
+      retryCount++;
+      console.info("[glance-pay] confirm timeout, retrying...");
+      const { executePayment } = await import("../utils/api");
+      const result = await executePayment();
+      if (state.state === "PENDING") return;
+      if (state.state !== "CONFIRM") return;
+      // If we get here, payment failed, will retry
+    } else {
+      // Max retries exceeded, cancel
+      console.info("[glance-pay] confirm timeout exceeded, cancelling");
+      state.txHash = null;
+      state.emailId = null;
+      await import("../lens").then(({ transition }) => transition("IDLE"));
+    }
+  }, CONFIRM_TIMEOUT_MS);
+}
+
+function cancelConfirmTimeout(): void {
+  clearConfirmTimeout();
+}
+
+export function onConfirmEnter(): void {
+  startConfirmTimeout();
+}
+
+export function onConfirmExit(): void {
+  cancelConfirmTimeout();
+}
+
+export function onPendingEnter(): void {
+  // Could add pending timeout here if needed
+}
+
+export { LensState, loadLastPayment, saveLastPayment, loadMerchants, sortMerchantsByDistance, loadUserLocation };

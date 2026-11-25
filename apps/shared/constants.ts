@@ -23,3 +23,8 @@ export const MAX_AMOUNT_INR = 500;
 export const MIN_AMOUNT_INR = 0.01;
 
 export const AMOUNT_UNITS_MULTIPLIER = 1_000_000; // USDC has 6 decimals
+
+export const CONTRACT_VERSION = "1.0.0";
+export const CONTRACT_NAME = "GlancePayG2";
+
+export const CONTRACT_VERSION_FILE = "1.0.0";
