@@ -1,7 +1,8 @@
 # Glance Pay
 
-Web panel + API: [https://glance-pay-api.onrender.com]
-G2 lens app: [https://glance-pay-g2.onrender.com]
+### Web panel + API: https://glance-pay-api.onrender.com
+
+### G2 lens app: https://glance-pay-g2.onrender.com
 
 ---
 
