@@ -148,8 +148,4 @@ Run: `cd apps/glance-pay-g2 && npm test`
 
 ## License
 
-MIT — Testnet only. No real funds. Built for the Even Realities × TVM Ventures × Daos Hub "Heads Up" Hackathon (Nov 23–29, 2026).
-
----
-
-*Author: Nikhil Kottoli — <nikhilkottoli2005@gmail.com>*
+MIT
