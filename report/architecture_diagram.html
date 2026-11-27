@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Glance Pay Architecture</title>
+    <style>
+        body { background: #000; color: #0f0; font-family: monospace; padding: 40px; font-size: 20px; text-align: center; }
+        .diagram { max-width: 1000px; margin: 0 auto; text-align: left; }
+        .box { border: 2px solid #0f0; border-radius: 8px; padding: 20px; margin: 15px; display: inline-block; vertical-align: top; min-width: 200px; }
+        .green { border-color: #0f0; background: #002200; color: #0f0; }
+        .blue { border-color: #00f; background: #000022; color: #0f0; }
+        .orange { border-color: #f80; background: #221100; color: #ff8; }
+        .red { border-color: #f00; background: #220000; color: #f88; }
+        .purple { border-color: #f0f; background: #220022; color: #f0f; }
+        .arrow { font-size: 32px; color: #0f0; margin: 0 10px; vertical-align: middle; }
+        h1 { text-align: center; margin-bottom: 30px; text-shadow: 0 0 10px #0f0; }
+        .arrow-down { font-size: 24px; color: #0f0; display: block; text-align: center; margin: 10px 0; }
+        .legend { margin-top: 30px; font-size: 14px; text-align: center; color: #8f8; }
+    </style>
+</head>
+<body>
+    <h1>Glance Pay — Architecture</h1>
+    <div class="diagram">
+        <div style="text-align: center;">
+            <div class="box green" style="width: 280px;">
+                <b>G2 Lens App</b><br>
+                576×288 monochrome<br>
+                Voice + Ring input<br>
+                Even Hub SDK
+            </div>
+            <span class="arrow">→</span>
+            <div class="box blue" style="width: 280px;">
+                <b>Web Panel (Phone)</b><br>
+                MetaMask wallet<br>
+                GPS merchant picker<br>
+                Admin onboarding<br>
+                TTS confirmation
+            </div>
+        </div>
+        <div style="text-align: center; margin: 20px 0;">
+            <span class="arrow-down">↓</span>
+        </div>
+        <div style="text-align: center;">
+            <div class="box orange" style="width: 350px;">
+                <b>Node.js Backend</b><br>
+                /api/pay — verify on-chain<br>
+                /api/demo-sign-and-pay — server signs USDC<br>
+                /api/merchants CRUD<br>
+                /api/stt — Whisper endpoint
+            </div>
+        </div>
+        <div style="text-align: center; margin: 20px 0;">
+            <span class="arrow-down">↓</span>
+        </div>
+        <div style="text-align: center;">
+            <div class="box red" style="width: 280px;">
+                <b>Ethereum Sepolia</b><br>
+                Chain ID: 11155111<br>
+                USDC: 0x1c7D4B...<br>
+                Real on-chain settlement
+            </div>
+            <span class="arrow">→</span>
+            <div class="box purple" style="width: 280px;">
+                <b>Resend Email</b><br>
+                Receipt with tx hash<br>
+                UPI handle<br>
+                Etherscan link
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <div class="box green" style="width: 500px;">
+                <b>Rupee Rail</b> (NikhilKottoli/RupeeRail)<br>
+                UPI payout to merchants in production
+            </div>
+        </div>
+    </div>
+</body>
+</html>
