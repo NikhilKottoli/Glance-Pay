@@ -1,0 +1,58 @@
+# Render Blueprint for Glance Pay
+# Deploy: Render Dashboard -> New -> Blueprint -> pick this repo -> Apply.
+#
+# Two services:
+#   1. glance-pay-api  - Node web service: API + static web panel (apps/glance-pay/web)
+#   2. glance-pay-g2   - Static site: built Even Hub G2 lens app (apps/glance-pay-g2)
+#
+# Values marked `sync: false` are secrets/prompts: Render asks for them on first
+# deploy and never stores them in git.
+
+services:
+  - type: web
+    name: glance-pay-api
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: apps/glance-pay
+    buildCommand: npm install --omit=dev
+    startCommand: node server/server.mjs
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      # Render injects PORT automatically; the server reads process.env.PORT (default 8787).
+      - key: NODE_VERSION
+        value: 22.23.4
+      # Required: the server throws at boot without this.
+      - key: PAYOUT_TREASURY_ADDRESS
+        sync: false
+      # Where receipt emails go.
+      - key: PAYOUT_EMAIL_TO
+        sync: false
+      # Resend API key for receipt emails (https://resend.com/api-keys).
+      - key: RESEND_API_KEY
+        sync: false
+      # 64 hex chars, no 0x prefix. Powers POST /api/demo-sign-and-pay.
+      - key: DEMO_WALLET_PRIVATE_KEY
+        sync: false
+
+  - type: web
+    name: glance-pay-g2
+    runtime: static
+    plan: free
+    region: singapore
+    rootDir: apps/glance-pay-g2
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 22.23.4
+      # Public URL of the API service above, e.g. https://glance-pay-api.onrender.com
+      # Baked into the bundle at build time.
+      - key: VITE_API_BASE
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
