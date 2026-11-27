@@ -1,8 +1,7 @@
 # Glance Pay
 
-> **Even Realities G2 Hackathon — DeFi Track**  
-> Hands-free stablecoin → UPI payments on G2 smart glasses.  
-> Real Ethereum Sepolia USDC settlement. Testnet only.
+Web panel + API: [https://glance-pay-api.onrender.com]
+G2 lens app: [https://glance-pay-g2.onrender.com]
 
 ---
 
